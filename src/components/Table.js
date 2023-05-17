@@ -24,27 +24,10 @@ import { visuallyHidden } from "@mui/utils";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import {
-  Button,
-  Collapse,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { Button, Collapse, TextField } from "@mui/material";
+import Insert from "./Insert";
 
 const ZOHO = window.ZOHO;
-
-function createData(name, position, team, bday, email) {
-  return {
-    name,
-    position,
-    team,
-    bday,
-    email,
-  };
-}
 
 const headCells = [
   {
@@ -140,78 +123,71 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
 };
-
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
-
-  return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
-      }}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
-  );
-}
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
-
 export default function EnhancedTable() {
+  function EnhancedTableToolbar(props) {
+    const { numSelected } = props;
+
+    return (
+      <Toolbar
+        sx={{
+          pl: { sm: 2 },
+          pr: { xs: 1, sm: 1 },
+          ...(numSelected > 0 && {
+            bgcolor: (theme) =>
+              alpha(
+                theme.palette.primary.main,
+                theme.palette.action.activatedOpacity
+              ),
+          }),
+        }}
+      >
+        {numSelected > 0 ? (
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            color="inherit"
+            variant="subtitle1"
+            component="div"
+          >
+            {numSelected} selected
+          </Typography>
+        ) : (
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            variant="h6"
+            id="tableTitle"
+            component="div"
+          >
+            <Insert />
+          </Typography>
+        )}
+
+        {numSelected > 0 ? (
+          <Tooltip title="Delete">
+            <IconButton onClick={() => handleDelete(allData.id)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Filter list">
+            <IconButton>
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Toolbar>
+    );
+  }
+
+  EnhancedTableToolbar.propTypes = {
+    numSelected: PropTypes.number.isRequired,
+  };
+
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const [age, setAge] = React.useState("");
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
 
   const data = [];
 
@@ -238,9 +214,7 @@ export default function EnhancedTable() {
       //Custom Bussiness logic goes here
       console.log(data);
     });
-    /*
-     * initializing the widget.
-     */
+
     ZOHO.embeddedApp.init().then(() => {
       setZohoLoaded(true);
     });
@@ -267,6 +241,7 @@ export default function EnhancedTable() {
       });
     }
   }, [zohoLoaded]);
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelected = data.map((n) => n.name);
@@ -314,17 +289,44 @@ export default function EnhancedTable() {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+  const handleDelete = (id) => {
+    ZOHO.CRM.API.deleteRecord({ Entity: "CRUD", RecordID: id }).then(function (
+      data
+    ) {
+      console.log(data);
+    });
+  };
+  const handleUpdate = (id, name, position, team, bday, email) => {
+    var config = {
+      Entity: "CRUD",
+      APIData: {
+        id: id,
+        Name: name,
+        Position: position,
+        Team: team,
+        BDay: bday,
+        Email: email,
+      },
+      Trigger: ["workflow"],
+    };
+    console.log("mahadi", config);
+    ZOHO.CRM.API.updateRecord(config).then(function (data) {
+      console.log(data);
+    });
+  };
 
-  // const visibleRows = React.useMemo(
-  //   () =>
-  //     stableSort(data, getComparator(order, orderBy)).slice(
-  //       page * rowsPerPage,
-  //       page * rowsPerPage + rowsPerPage
-  //     ),
-  //   [order, orderBy, page, rowsPerPage]
-  // );
-
-  // console.log({ visibleRows });
+  // const [update, setUpdate] = React.useState({
+  //   Name: "",
+  //   Position: "",
+  //   Team: "",
+  //   Email: "",
+  //   BDay: "",
+  // });
+  const [name, setName] = React.useState();
+  const [position, setPosition] = React.useState();
+  const [team, setTeam] = React.useState();
+  const [bday, setBDay] = React.useState();
+  const [email, setEmail] = React.useState();
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -345,9 +347,9 @@ export default function EnhancedTable() {
               rowCount={data.length}
             />
             <TableBody>
-              {data.map((data, index) => {
-                console.log({ data });
-                const isItemSelected = isSelected(data.name);
+              {allData.map((data, index) => {
+                // console.log({ data });
+                const isItemSelected = isSelected(data.Name);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
@@ -355,11 +357,11 @@ export default function EnhancedTable() {
                     <React.Fragment>
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event, data.name)}
+                        onClick={(event) => handleClick(event, data.Name)}
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
-                        key={data.name}
+                        key={data.Name}
                         selected={isItemSelected}
                         sx={{ cursor: "pointer" }}
                       >
@@ -378,17 +380,17 @@ export default function EnhancedTable() {
                           scope="row"
                           padding="none"
                         >
-                          {data.name}
+                          {data.Name}
                         </TableCell>
-                        <TableCell align="right">{data.position}</TableCell>
-                        <TableCell align="right">{data.team}</TableCell>
-                        <TableCell align="right">{data.bday}</TableCell>
-                        <TableCell align="right">{data.email}</TableCell>
+                        <TableCell align="right">{data.Position}</TableCell>
+                        <TableCell align="right">{data.Team}</TableCell>
+                        <TableCell align="right">{data.BDay}</TableCell>
+                        <TableCell align="right">{data.Email}</TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="expand row"
                             size="small"
-                            onClick={() => handleSelect(data.name)}
+                            onClick={() => handleSelect(data.Name)}
                           >
                             {open ? (
                               <KeyboardArrowUpIcon />
@@ -404,7 +406,7 @@ export default function EnhancedTable() {
                           colSpan={6}
                         >
                           <Collapse
-                            in={open === data.name}
+                            in={open === data.Name}
                             timeout="auto"
                             unmountOnExit
                           >
@@ -412,42 +414,75 @@ export default function EnhancedTable() {
                               <Table size="small" aria-label="purchases">
                                 <TableRow>
                                   <TableCell>
-                                    <TextField size="small" placeholder="Name">
-                                      <input
-                                        type="text"
-                                        name="name"
-                                        required
-                                        value={data.name}
-                                        placeholder="Name"
-                                      ></input>
-                                    </TextField>
+                                    <TextField
+                                      size="small"
+                                      placeholder="Name"
+                                      type="text"
+                                      name="name"
+                                      value={name}
+                                      onChange={(e) => setName(e.target.value)}
+                                    />
                                   </TableCell>
                                   <TableCell>
-                                    {" "}
                                     <TextField
                                       size="small"
                                       placeholder="Position"
+                                      type="text"
+                                      name="position"
+                                      value={position}
+                                      onChange={(e) =>
+                                        setPosition(e.target.value)
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      size="small"
+                                      placeholder="Team"
+                                      type="text"
+                                      name="team"
+                                      value={team}
+                                      onChange={(e) => setTeam(e.target.value)}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      size="small"
+                                      placeholder="BDay"
+                                      type="text"
+                                      name="bday"
+                                      value={bday}
+                                      onChange={(e) => setBDay(e.target.value)}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      size="small"
+                                      placeholder="Email"
+                                      type="text"
+                                      name="email"
+                                      value={email}
+                                      onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      sx={{ width: "150px" }}
+                                      type="submit"
+                                      variant="contained"
+                                      onClick={() =>
+                                        handleUpdate(
+                                          data.id,
+                                          name,
+                                          position,
+                                          team,
+                                          bday,
+                                          email
+                                        )
+                                      }
                                     >
-                                      <input type="text" name="position" />{" "}
-                                    </TextField>
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField size="small" placeholder="Team">
-                                      <input type="text" name="team" />
-                                    </TextField>
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField size="small" placeholder="Team">
-                                      <input type="text" name="team" />
-                                    </TextField>
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField size="small" placeholder="Email">
-                                      <input type="text" name="email" />
-                                    </TextField>
-                                  </TableCell>
-                                  <TableCell>
-                                    <Button>Edit</Button>
+                                      save
+                                    </Button>
                                   </TableCell>
                                 </TableRow>
                                 {/* <TableRow>
