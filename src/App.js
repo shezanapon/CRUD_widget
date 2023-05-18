@@ -10,9 +10,9 @@ function App() {
   return (
     <Box className="App">
       <Box p={4}>
-        {/* <EnhancedTable /> */}
+        <EnhancedTable />
         {/* <Insert /> */}
-        <Delete />
+        {/* <Delete /> */}
       </Box>
     </Box>
   );

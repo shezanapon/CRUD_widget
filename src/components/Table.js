@@ -26,6 +26,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { Button, Collapse, TextField } from "@mui/material";
 import Insert from "./Insert";
+import Delete from "./Delete";
 
 const ZOHO = window.ZOHO;
 
@@ -163,9 +164,7 @@ export default function EnhancedTable() {
 
         {numSelected > 0 ? (
           <Tooltip title="Delete">
-            <IconButton onClick={() => handleDelete(allData.id)}>
-              <DeleteIcon />
-            </IconButton>
+            <Delete props={props} />
           </Tooltip>
         ) : (
           <Tooltip title="Filter list">
@@ -289,13 +288,7 @@ export default function EnhancedTable() {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
-  const handleDelete = (id) => {
-    ZOHO.CRM.API.deleteRecord({ Entity: "CRUD", RecordID: id }).then(function (
-      data
-    ) {
-      console.log(data);
-    });
-  };
+
   const handleUpdate = (id, name, position, team, bday, email) => {
     var config = {
       Entity: "CRUD",
@@ -328,8 +321,30 @@ export default function EnhancedTable() {
   const [bday, setBDay] = React.useState();
   const [email, setEmail] = React.useState();
 
+  const [search, setSearch] = React.useState();
+
   return (
     <Box sx={{ width: "100%" }}>
+      <Box>
+        <Box sx={{ display: "flex", flexWrap: "wrap", p: 1, m: 1 }}></Box>
+        <Box>
+          <Box
+            sx={{
+              width: 400,
+              maxWidth: "100%",
+              display: "inline-flex",
+            }}
+          >
+            <TextField
+              fullWidth
+              label="SEARCH"
+              size="small"
+              id="fullWidth"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </Box>
+        </Box>
+      </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
@@ -449,7 +464,7 @@ export default function EnhancedTable() {
                                     <TextField
                                       size="small"
                                       placeholder="BDay"
-                                      type="text"
+                                      type="date"
                                       name="bday"
                                       value={bday}
                                       onChange={(e) => setBDay(e.target.value)}

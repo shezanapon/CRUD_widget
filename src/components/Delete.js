@@ -7,12 +7,24 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 
+const ZOHO = window.ZOHO;
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function Delete() {
+export default function Delete({ props }) {
+  const id = props;
+  console.log(id);
   const [open, setOpen] = React.useState(false);
+
+  const handleDelete = (id) => {
+    ZOHO.CRM.API.deleteRecord({ Entity: "CRUD", RecordID: id }).then(function (
+      data
+    ) {
+      console.log(data);
+    });
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -24,8 +36,18 @@ export default function Delete() {
 
   return (
     <div>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Slide in alert dialog
+      <Button
+        sx={{
+          bgcolor: "black",
+          color: "white",
+          "&:hover": {
+            bgcolor: "black",
+            color: "white",
+          },
+        }}
+        onClick={handleClickOpen}
+      >
+        Delete
       </Button>
       <Dialog
         open={open}
@@ -34,16 +56,31 @@ export default function Delete() {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle>{"Use Google's location service?"}</DialogTitle>
+        <DialogTitle sx={{ bgcolor: "red", color: "white" }}>
+          {"Confirm Delete"}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
+            Are you sure you want to delete this file?
+            <br />
+            You can not undo this action
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose}>Agree</Button>
+          <Button onClick={handleClose}>No</Button>
+          <Button
+            sx={{
+              bgcolor: "red",
+              color: "white",
+              "&:hover": {
+                bgcolor: "red",
+                color: "white",
+              },
+            }}
+            onClick={() => handleDelete(id)}
+          >
+            Yes
+          </Button>
         </DialogActions>
       </Dialog>
     </div>
