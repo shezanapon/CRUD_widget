@@ -21,12 +21,13 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
-
+import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { Button, Collapse, TextField } from "@mui/material";
 import Insert from "./Insert";
 import Delete from "./Delete";
+import App from "../App";
 
 const ZOHO = window.ZOHO;
 
@@ -126,7 +127,8 @@ EnhancedTableHead.propTypes = {
 };
 export default function EnhancedTable() {
   function EnhancedTableToolbar(props) {
-    const { numSelected } = props;
+    const { numSelected, allData } = props;
+    // console.log(allData);
 
     return (
       <Toolbar
@@ -164,7 +166,7 @@ export default function EnhancedTable() {
 
         {numSelected > 0 ? (
           <Tooltip title="Delete">
-            <Delete props={props} />
+            <Delete allData={allData} />
           </Tooltip>
         ) : (
           <Tooltip title="Filter list">
@@ -206,12 +208,12 @@ export default function EnhancedTable() {
   };
   const [zohoLoaded, setZohoLoaded] = React.useState(false);
   const [allData, setAllData] = React.useState([]);
-  console.log(allData);
+  // console.log(allData);
 
   React.useEffect(() => {
     ZOHO.embeddedApp.on("PageLoad", function (data) {
       //Custom Bussiness logic goes here
-      console.log(data);
+      // console.log(data);
     });
 
     ZOHO.embeddedApp.init().then(() => {
@@ -302,19 +304,12 @@ export default function EnhancedTable() {
       },
       Trigger: ["workflow"],
     };
-    console.log("mahadi", config);
+    // console.log("mahadi", config);
     ZOHO.CRM.API.updateRecord(config).then(function (data) {
-      console.log(data);
+      // console.log(data);
     });
   };
 
-  // const [update, setUpdate] = React.useState({
-  //   Name: "",
-  //   Position: "",
-  //   Team: "",
-  //   Email: "",
-  //   BDay: "",
-  // });
   const [name, setName] = React.useState();
   const [position, setPosition] = React.useState();
   const [team, setTeam] = React.useState();
@@ -342,11 +337,12 @@ export default function EnhancedTable() {
               id="fullWidth"
               onChange={(e) => setSearch(e.target.value)}
             />
+            <SearchIcon />
           </Box>
         </Box>
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} allData={allData} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -362,145 +358,155 @@ export default function EnhancedTable() {
               rowCount={data.length}
             />
             <TableBody>
-              {allData.map((data, index) => {
-                // console.log({ data });
-                const isItemSelected = isSelected(data.Name);
-                const labelId = `enhanced-table-checkbox-${index}`;
+              {allData
+                .filter((user) => user.Name.toLowerCase().includes(search))
+                .map((data, index) => {
+                  // console.log({ data });
+                  const isItemSelected = isSelected(data.Name);
+                  const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <>
-                    <React.Fragment>
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, data.Name)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={data.Name}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
+                  return (
+                    <>
+                      <React.Fragment>
+                        <TableRow
+                          hover
+                          onClick={(event) => handleClick(event, data.Name)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={data.Name}
+                          selected={isItemSelected}
+                          sx={{ cursor: "pointer" }}
                         >
-                          {data.Name}
-                        </TableCell>
-                        <TableCell align="right">{data.Position}</TableCell>
-                        <TableCell align="right">{data.Team}</TableCell>
-                        <TableCell align="right">{data.BDay}</TableCell>
-                        <TableCell align="right">{data.Email}</TableCell>
-                        <TableCell align="right">
-                          <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={() => handleSelect(data.Name)}
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              inputProps={{
+                                "aria-labelledby": labelId,
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
                           >
-                            {open ? (
-                              <KeyboardArrowUpIcon />
-                            ) : (
-                              <KeyboardArrowDownIcon />
-                            )}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell
-                          style={{ paddingBottom: 0, paddingTop: 0 }}
-                          colSpan={6}
-                        >
-                          <Collapse
-                            in={open === data.Name}
-                            timeout="auto"
-                            unmountOnExit
+                            {data.Name}
+                          </TableCell>
+                          <TableCell align="right">{data.Position}</TableCell>
+                          <TableCell align="right">{data.Team}</TableCell>
+                          <TableCell align="right">{data.BDay}</TableCell>
+                          <TableCell align="right">{data.Email}</TableCell>
+                          <TableCell align="right">
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={() => handleSelect(data.Name)}
+                            >
+                              {open ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            style={{ paddingBottom: 0, paddingTop: 0 }}
+                            colSpan={6}
                           >
-                            <Box sx={{ margin: 1 }}>
-                              <Table size="small" aria-label="purchases">
-                                <TableRow>
-                                  <TableCell>
-                                    <TextField
-                                      size="small"
-                                      placeholder="Name"
-                                      type="text"
-                                      name="name"
-                                      value={name}
-                                      onChange={(e) => setName(e.target.value)}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField
-                                      size="small"
-                                      placeholder="Position"
-                                      type="text"
-                                      name="position"
-                                      value={position}
-                                      onChange={(e) =>
-                                        setPosition(e.target.value)
-                                      }
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField
-                                      size="small"
-                                      placeholder="Team"
-                                      type="text"
-                                      name="team"
-                                      value={team}
-                                      onChange={(e) => setTeam(e.target.value)}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField
-                                      size="small"
-                                      placeholder="BDay"
-                                      type="date"
-                                      name="bday"
-                                      value={bday}
-                                      onChange={(e) => setBDay(e.target.value)}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField
-                                      size="small"
-                                      placeholder="Email"
-                                      type="text"
-                                      name="email"
-                                      value={email}
-                                      onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Button
-                                      sx={{ width: "150px" }}
-                                      type="submit"
-                                      variant="contained"
-                                      onClick={() =>
-                                        handleUpdate(
-                                          data.id,
-                                          name,
-                                          position,
-                                          team,
-                                          bday,
-                                          email
-                                        )
-                                      }
-                                    >
-                                      save
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                                {/* <TableRow>
+                            <Collapse
+                              in={open === data.Name}
+                              timeout="auto"
+                              unmountOnExit
+                            >
+                              <Box sx={{ margin: 1 }}>
+                                <Table size="small" aria-label="purchases">
+                                  <TableRow>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Name"
+                                        type="text"
+                                        name="name"
+                                        value={name}
+                                        onChange={(e) =>
+                                          setName(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Position"
+                                        type="text"
+                                        name="position"
+                                        value={position}
+                                        onChange={(e) =>
+                                          setPosition(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Team"
+                                        type="text"
+                                        name="team"
+                                        value={team}
+                                        onChange={(e) =>
+                                          setTeam(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="BDay"
+                                        type="date"
+                                        name="bday"
+                                        value={bday}
+                                        onChange={(e) =>
+                                          setBDay(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Email"
+                                        type="text"
+                                        name="email"
+                                        value={email}
+                                        onChange={(e) =>
+                                          setEmail(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        sx={{ width: "150px" }}
+                                        type="submit"
+                                        variant="contained"
+                                        onClick={() =>
+                                          handleUpdate(
+                                            data.id,
+                                            name,
+                                            position,
+                                            team,
+                                            bday,
+                                            email
+                                          )
+                                        }
+                                      >
+                                        save
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                  {/* <TableRow>
                                   <TableCell>
                                     <TextField
                                       id="outlined-size-small"
@@ -583,15 +589,15 @@ export default function EnhancedTable() {
                                   </TableCell>
                                   <TableCell></TableCell>
                                 </TableRow> */}
-                              </Table>
-                            </Box>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  </>
-                );
-              })}
+                                </Table>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
+                    </>
+                  );
+                })}
               {emptyRows > 0 && (
                 <TableRow
                   style={{
