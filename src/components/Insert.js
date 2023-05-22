@@ -8,7 +8,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 const ZOHO = window.ZOHO;
-export default function Insert() {
+export default function Insert({ handleChange }) {
+  console.log("shezan", handleChange);
   const [name, setName] = React.useState();
   const [position, setPosition] = React.useState();
   const [team, setTeam] = React.useState();
@@ -38,6 +39,7 @@ export default function Insert() {
   const handleClose = () => {
     setOpen(false);
   };
+
   const handleInsert = (name, position, team, bday, email) => {
     var recordData = {
       Name: name,
@@ -58,7 +60,7 @@ export default function Insert() {
     <div>
       <Button
         onClick={handleClickOpen}
-        variant="conatined"
+        variant="contained"
         sx={{
           bgcolor: "purple",
           color: "white",
@@ -130,6 +132,7 @@ export default function Insert() {
             type="submit"
             variant="contained"
             onClick={() => handleInsert(name, position, team, bday, email)}
+            onChange={handleChange}
           >
             Submit
           </Button>

@@ -126,9 +126,10 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 export default function EnhancedTable() {
+  const [id, setID] = React.useState();
   function EnhancedTableToolbar(props) {
-    const { numSelected, allData } = props;
-    // console.log(allData);
+    const { numSelected } = props;
+    // console.log("shezan", id);
 
     return (
       <Toolbar
@@ -166,7 +167,7 @@ export default function EnhancedTable() {
 
         {numSelected > 0 ? (
           <Tooltip title="Delete">
-            <Delete allData={allData} />
+            <Delete id={id} />
           </Tooltip>
         ) : (
           <Tooltip title="Filter list">
@@ -318,6 +319,8 @@ export default function EnhancedTable() {
 
   const [search, setSearch] = React.useState();
 
+  // console.log(id);
+
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
@@ -382,6 +385,10 @@ export default function EnhancedTable() {
                             <Checkbox
                               color="primary"
                               checked={isItemSelected}
+                              value={data.id}
+                              onClick={(e) => setID(e.target.value)}
+                              // value={data.id}
+                              // onChange={(e) => setID(e.target.value)}
                               inputProps={{
                                 "aria-labelledby": labelId,
                               }}
