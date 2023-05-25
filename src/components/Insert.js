@@ -8,8 +8,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 const ZOHO = window.ZOHO;
-export default function Insert({ handleChange }) {
-  console.log("shezan", handleChange);
+export default function Insert({ module }) {
   const [name, setName] = React.useState();
   const [position, setPosition] = React.useState();
   const [team, setTeam] = React.useState();
@@ -18,20 +17,12 @@ export default function Insert({ handleChange }) {
 
   const [open, setOpen] = React.useState(false);
 
-  const validate = (values) => {
-    const errors = {};
-
-    if (!values.email) {
-      errors.email = "Required";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-    ) {
-      errors.email = "Invalid email address";
-    }
-
-    return errors;
+  const handleShut = () => {
+    handleInsert(name, position, team, bday, email);
+    setOpen(false);
+    window.location.reload(false);
+    window.location.reload(false);
   };
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -49,7 +40,7 @@ export default function Insert({ handleChange }) {
       Email: email,
     };
     ZOHO.CRM.API.insertRecord({
-      Entity: "CRUD",
+      Entity: module,
       APIData: recordData,
       Trigger: ["workflow"],
     }).then(function (data) {
@@ -128,12 +119,7 @@ export default function Insert({ handleChange }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            onClick={() => handleInsert(name, position, team, bday, email)}
-            onChange={handleChange}
-          >
+          <Button type="submit" variant="contained" onClick={handleShut}>
             Submit
           </Button>
         </DialogActions>

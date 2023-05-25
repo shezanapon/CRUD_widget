@@ -14,9 +14,16 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function Delete({ id }) {
-  console.log(id);
+  // console.log(id);
 
   const [open, setOpen] = React.useState(false);
+  const handleshut = () => {
+    console.log(id);
+
+    handleDelete(id);
+    setOpen(false);
+    window.location.reload(false);
+  };
 
   const handleDelete = async (id) => {
     await ZOHO.CRM.API.deleteRecord({
@@ -78,7 +85,7 @@ export default function Delete({ id }) {
                 color: "white",
               },
             }}
-            onClick={() => handleDelete(id)}
+            onClick={handleshut}
           >
             Yes
           </Button>

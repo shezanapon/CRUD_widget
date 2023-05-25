@@ -18,118 +18,217 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Button, Collapse, TextField } from "@mui/material";
+import { Button, Chip, Collapse, Stack, TextField } from "@mui/material";
 import Insert from "./Insert";
 import Delete from "./Delete";
 import App from "../App";
 
 const ZOHO = window.ZOHO;
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Name",
-  },
-  {
-    id: "position",
-    numeric: true,
-    disablePadding: false,
-    label: "Position",
-  },
-  {
-    id: "team",
-    numeric: true,
-    disablePadding: false,
-    label: "Team",
-  },
-  {
-    id: "bday",
-    numeric: true,
-    disablePadding: false,
-    label: "BDay",
-  },
-  {
-    id: "email",
-    numeric: true,
-    disablePadding: false,
-    label: "Email",
-  },
-];
+export default function EnhancedTable() {
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("calories");
+  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [dense, setDense] = React.useState(false);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
+  const data = [];
+
+  const [open, setOpen] = React.useState(false);
+  const handleSelect = (name) => {
+    setOpen((currentId) => {
+      // if it's already opened then unselect it
+      if (currentId === name) return null;
+      return name;
+    });
   };
 
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              <b> {headCell.label}</b>
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+  const [module, setModule] = React.useState("CRUD");
+  const [zohoLoaded, setZohoLoaded] = React.useState(false);
+  const [allData, setAllData] = React.useState([]);
+  console.log(allData);
+  if (module === "CRUD") {
+    var headCells = [
+      {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "Name",
+      },
+      {
+        id: "position",
+        numeric: true,
+        disablePadding: false,
+        label: "Position",
+      },
+      {
+        id: "team",
+        numeric: true,
+        disablePadding: false,
+        label: "Team",
+      },
+      {
+        id: "bday",
+        numeric: true,
+        disablePadding: false,
+        label: "BDay",
+      },
+      {
+        id: "email",
+        numeric: true,
+        disablePadding: false,
+        label: "Email",
+      },
+    ];
+  } else if (module === "Deals") {
+    var headCells = [
+      {
+        id: "deal_Name",
+        numeric: false,
+        disablePadding: true,
+        label: "Deal_Name",
+      },
+      {
+        id: "id",
+        numeric: true,
+        disablePadding: false,
+        label: "id",
+      },
+      {
+        id: "stage",
+        numeric: true,
+        disablePadding: false,
+        label: "Stage",
+      },
 
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-export default function EnhancedTable() {
+      {
+        id: "time",
+        numeric: true,
+        disablePadding: false,
+        label: "Modified_Time",
+      },
+      {
+        id: "amount",
+        numeric: true,
+        disablePadding: false,
+        label: "Amount",
+      },
+    ];
+  } else if (module === "Accounts") {
+    var headCells = [
+      {
+        id: "account_Name",
+        numeric: false,
+        disablePadding: true,
+        label: "Account_Name",
+      },
+      {
+        id: "id",
+        numeric: true,
+        disablePadding: false,
+        label: "id",
+      },
+      {
+        id: "exchange_Rate",
+        numeric: true,
+        disablePadding: false,
+        label: "Exchange_Rate",
+      },
+
+      {
+        id: "time",
+        numeric: true,
+        disablePadding: false,
+        label: "Modified_Time",
+      },
+      {
+        id: "account_Number",
+        numeric: true,
+        disablePadding: false,
+        label: "Account_Number",
+      },
+    ];
+  }
+
+  function EnhancedTableHead(props) {
+    const {
+      onSelectAllClick,
+      order,
+      orderBy,
+      numSelected,
+      rowCount,
+      onRequestSort,
+    } = props;
+    const createSortHandler = (property) => (event) => {
+      onRequestSort(event, property);
+    };
+
+    return (
+      <TableHead>
+        <TableRow>
+          <TableCell padding="checkbox">
+            <Checkbox
+              color="primary"
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{
+                "aria-label": "select all desserts",
+              }}
+            />
+          </TableCell>
+          {headCells.map((headCell) => (
+            <TableCell
+              key={headCell.id}
+              align={headCell.numeric ? "right" : "left"}
+              padding={headCell.disablePadding ? "none" : "normal"}
+              sortDirection={orderBy === headCell.id ? order : false}
+            >
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : "asc"}
+                onClick={createSortHandler(headCell.id)}
+              >
+                <b> {headCell.label}</b>
+                {orderBy === headCell.id ? (
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+    );
+  }
+
+  EnhancedTableHead.propTypes = {
+    numSelected: PropTypes.number.isRequired,
+    onRequestSort: PropTypes.func.isRequired,
+    onSelectAllClick: PropTypes.func.isRequired,
+    order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+    orderBy: PropTypes.string.isRequired,
+    rowCount: PropTypes.number.isRequired,
+  };
   const [id, setID] = React.useState();
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
-    // console.log("shezan", id);
+    // console.log("shezan", disable);
 
     return (
       <Toolbar
@@ -161,7 +260,7 @@ export default function EnhancedTable() {
             id="tableTitle"
             component="div"
           >
-            <Insert />
+            <Insert module={module} />
           </Typography>
         )}
 
@@ -183,34 +282,6 @@ export default function EnhancedTable() {
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
-
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const data = [];
-
-  const [open, setOpen] = React.useState(false);
-  const handleSelect = (name) => {
-    setOpen((currentId) => {
-      // if it's already opened then unselect it
-      if (currentId === name) return null;
-      return name;
-    });
-  };
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-  const [zohoLoaded, setZohoLoaded] = React.useState(false);
-  const [allData, setAllData] = React.useState([]);
-  // console.log(allData);
-
   React.useEffect(() => {
     ZOHO.embeddedApp.on("PageLoad", function (data) {
       //Custom Bussiness logic goes here
@@ -234,7 +305,7 @@ export default function EnhancedTable() {
   React.useEffect(() => {
     if (zohoLoaded) {
       ZOHO.CRM.API.getAllRecords({
-        Entity: "CRUD",
+        Entity: module,
         sort_order: "asc",
         per_page: 200,
         page: 1,
@@ -242,7 +313,7 @@ export default function EnhancedTable() {
         setAllData(data.data);
       });
     }
-  }, [zohoLoaded]);
+  }, [zohoLoaded, module]);
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
@@ -294,7 +365,7 @@ export default function EnhancedTable() {
 
   const handleUpdate = (id, name, position, team, bday, email) => {
     var config = {
-      Entity: "CRUD",
+      Entity: module,
       APIData: {
         id: id,
         Name: name,
@@ -311,16 +382,23 @@ export default function EnhancedTable() {
     });
   };
 
-  const [name, setName] = React.useState();
-  const [position, setPosition] = React.useState();
-  const [team, setTeam] = React.useState();
-  const [bday, setBDay] = React.useState();
+  const [name, setName] = React.useState("");
+  const [position, setPosition] = React.useState("");
+  const [team, setTeam] = React.useState("");
+  const [bday, setBDay] = React.useState("");
   const [email, setEmail] = React.useState();
 
-  const [search, setSearch] = React.useState();
+  const [search, setSearch] = React.useState("");
 
-  // console.log(id);
+  console.log(id);
+  const regex =
+    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+  const [disable, setDisable] = React.useState(true);
 
+  const checkEmail = (e) => {
+    setDisable(!regex.test(e.target.value));
+    setEmail(e.target.value);
+  };
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
@@ -328,19 +406,35 @@ export default function EnhancedTable() {
         <Box>
           <Box
             sx={{
-              width: 400,
+              width: 900,
               maxWidth: "100%",
-              display: "inline-flex",
+              display: "flex",
+              marginBottom: "20px",
             }}
           >
+            <Stack direction="row" spacing={1} sx={{ paddingRight: "200px" }}>
+              <Button variant="contained" onClick={() => setModule("CRUD")}>
+                CRUD
+              </Button>
+              <Button variant="contained" onClick={() => setModule("Deals")}>
+                Deals
+              </Button>
+              <Button variant="contained" onClick={() => setModule("Accounts")}>
+                Accounts
+              </Button>
+            </Stack>
             <TextField
               fullWidth
-              label="SEARCH"
+              label="Search here..."
               size="small"
               id="fullWidth"
               onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                style: {
+                  borderRadius: "20px",
+                },
+              }}
             />
-            <SearchIcon />
           </Box>
         </Box>
       </Box>
@@ -362,248 +456,490 @@ export default function EnhancedTable() {
             />
             <TableBody>
               {allData
-                .filter((user) => user.Name.toLowerCase().includes(search))
+                .filter((user) => user.id.includes(search))
                 .map((data, index) => {
                   // console.log({ data });
                   const isItemSelected = isSelected(data.Name);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <>
-                      <React.Fragment>
-                        <TableRow
-                          hover
-                          onClick={(event) => handleClick(event, data.Name)}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={data.Name}
-                          selected={isItemSelected}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              color="primary"
-                              checked={isItemSelected}
-                              value={data.id}
-                              onClick={(e) => setID(e.target.value)}
-                              // value={data.id}
-                              // onChange={(e) => setID(e.target.value)}
-                              inputProps={{
-                                "aria-labelledby": labelId,
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="none"
+                  if (module === "CRUD") {
+                    return (
+                      <>
+                        <React.Fragment>
+                          <TableRow
+                            hover
+                            onClick={(event) => handleClick(event, data.Name)}
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={data.Name}
+                            selected={isItemSelected}
+                            sx={{ cursor: "pointer" }}
                           >
-                            {data.Name}
-                          </TableCell>
-                          <TableCell align="right">{data.Position}</TableCell>
-                          <TableCell align="right">{data.Team}</TableCell>
-                          <TableCell align="right">{data.BDay}</TableCell>
-                          <TableCell align="right">{data.Email}</TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              aria-label="expand row"
-                              size="small"
-                              onClick={() => handleSelect(data.Name)}
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                color="primary"
+                                checked={isItemSelected}
+                                value={data.id}
+                                onClick={(e) => setID(e.target.value)}
+                                // value={data.id}
+                                // onChange={(e) => setID(e.target.value)}
+                                inputProps={{
+                                  "aria-labelledby": labelId,
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
                             >
-                              {open ? (
-                                <KeyboardArrowUpIcon />
-                              ) : (
-                                <KeyboardArrowDownIcon />
-                              )}
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            style={{ paddingBottom: 0, paddingTop: 0 }}
-                            colSpan={6}
+                              {data.Name}
+                            </TableCell>
+                            <TableCell align="right">{data.Position}</TableCell>
+                            <TableCell align="right">{data.Team}</TableCell>
+                            <TableCell align="right">{data.BDay}</TableCell>
+                            <TableCell align="right">{data.Email}</TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                aria-label="expand row"
+                                size="small"
+                                onClick={() => handleSelect(data.id)}
+                              >
+                                {open ? (
+                                  <KeyboardArrowUpIcon />
+                                ) : (
+                                  <KeyboardArrowDownIcon />
+                                )}
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              style={{ paddingBottom: 0, paddingTop: 0 }}
+                              colSpan={6}
+                            >
+                              <Collapse
+                                in={open === data.Name}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <Box sx={{ margin: 1 }}>
+                                  <Table size="small" aria-label="purchases">
+                                    <TableRow>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Name"
+                                          type="text"
+                                          name="name"
+                                          value={name}
+                                          onChange={(e) =>
+                                            setName(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Position"
+                                          type="text"
+                                          name="position"
+                                          value={position}
+                                          onChange={(e) =>
+                                            setPosition(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Team"
+                                          type="text"
+                                          name="team"
+                                          value={team}
+                                          onChange={(e) =>
+                                            setTeam(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="BDay"
+                                          type="date"
+                                          name="bday"
+                                          value={bday}
+                                          onChange={(e) =>
+                                            setBDay(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Email"
+                                          type="text"
+                                          name="email"
+                                          value={email}
+                                          onChange={(e) => checkEmail(e)}
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          disabled={disable}
+                                          sx={{ width: "150px" }}
+                                          type="submit"
+                                          variant="contained"
+                                          onClick={function refreshPage() {
+                                            window.location.reload(false);
+                                            window.location.reload(false);
+                                            handleUpdate(
+                                              data.id,
+                                              name,
+                                              position,
+                                              team,
+                                              bday,
+                                              email
+                                            );
+                                          }}
+                                        >
+                                          update
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  </Table>
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </React.Fragment>
+                      </>
+                    );
+                  } else if (module === "Deals") {
+                    return (
+                      <>
+                        <React.Fragment>
+                          <TableRow
+                            hover
+                            onClick={(event) =>
+                              handleClick(event, data.Deal_Name)
+                            }
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={data.Deal_Name}
+                            selected={isItemSelected}
+                            sx={{ cursor: "pointer" }}
                           >
-                            <Collapse
-                              in={open === data.Name}
-                              timeout="auto"
-                              unmountOnExit
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                color="primary"
+                                checked={isItemSelected}
+                                value={data.id}
+                                onClick={(e) => setID(e.target.value)}
+                                // value={data.id}
+                                // onChange={(e) => setID(e.target.value)}
+                                inputProps={{
+                                  "aria-labelledby": labelId,
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
                             >
-                              <Box sx={{ margin: 1 }}>
-                                <Table size="small" aria-label="purchases">
-                                  <TableRow>
-                                    <TableCell>
-                                      <TextField
-                                        size="small"
-                                        placeholder="Name"
-                                        type="text"
-                                        name="name"
-                                        value={name}
-                                        onChange={(e) =>
-                                          setName(e.target.value)
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <TextField
-                                        size="small"
-                                        placeholder="Position"
-                                        type="text"
-                                        name="position"
-                                        value={position}
-                                        onChange={(e) =>
-                                          setPosition(e.target.value)
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <TextField
-                                        size="small"
-                                        placeholder="Team"
-                                        type="text"
-                                        name="team"
-                                        value={team}
-                                        onChange={(e) =>
-                                          setTeam(e.target.value)
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <TextField
-                                        size="small"
-                                        placeholder="BDay"
-                                        type="date"
-                                        name="bday"
-                                        value={bday}
-                                        onChange={(e) =>
-                                          setBDay(e.target.value)
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <TextField
-                                        size="small"
-                                        placeholder="Email"
-                                        type="text"
-                                        name="email"
-                                        value={email}
-                                        onChange={(e) =>
-                                          setEmail(e.target.value)
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Button
-                                        sx={{ width: "150px" }}
-                                        type="submit"
-                                        variant="contained"
-                                        onClick={() =>
-                                          handleUpdate(
-                                            data.id,
-                                            name,
-                                            position,
-                                            team,
-                                            bday,
-                                            email
-                                          )
-                                        }
-                                      >
-                                        save
-                                      </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                  {/* <TableRow>
-                                  <TableCell>
-                                    <TextField
-                                      id="outlined-size-small"
-                                      defaultValue="Small"
-                                      size="small"
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    {" "}
-                                    <FormControl
-                                      sx={{ m: 1, minWidth: 120 }}
-                                      size="small"
-                                    >
-                                      <InputLabel id="demo-select-small-label">
-                                        Experience
-                                      </InputLabel>
-                                      <Select
-                                        labelId="demo-select-small-label"
-                                        id="demo-select-small"
-                                        value={age}
-                                        label="Age"
-                                        onChange={handleChange}
-                                      >
-                                        <MenuItem value={10}>2 year</MenuItem>
-                                        <MenuItem value={20}>4 year</MenuItem>
-                                        <MenuItem value={30}>5 year</MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </TableCell>
-                                  <TableCell>
-                                    {" "}
-                                    <FormControl
-                                      sx={{ m: 1, minWidth: 120 }}
-                                      size="small"
-                                    >
-                                      <InputLabel id="demo-select-small-label">
-                                        Team
-                                      </InputLabel>
-                                      <Select
-                                        labelId="demo-select-small-label"
-                                        id="demo-select-small"
-                                        value={age}
-                                        label="Age"
-                                        onChange={handleChange}
-                                      >
-                                        <MenuItem value={1}>10</MenuItem>
-                                        <MenuItem value={2}>20</MenuItem>
-                                        <MenuItem value={3}>18</MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </TableCell>
-                                  <TableCell>
-                                    {" "}
-                                    <FormControl
-                                      sx={{ m: 1, minWidth: 120 }}
-                                      size="small"
-                                    >
-                                      <InputLabel id="demo-select-small-label">
-                                        BDay
-                                      </InputLabel>
-                                      <Select
-                                        labelId="demo-select-small-label"
-                                        id="demo-select-small"
-                                        value={age}
-                                        label="Age"
-                                        onChange={handleChange}
-                                      >
-                                        <MenuItem value={10}>Ten</MenuItem>
-                                        <MenuItem value={20}>Twenty</MenuItem>
-                                        <MenuItem value={30}>Thirty</MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </TableCell>
-                                  <TableCell>
-                                    <TextField
-                                      id="outlined-size-small"
-                                      defaultValue="Small"
-                                      size="small"
-                                    />
-                                  </TableCell>
-                                  <TableCell></TableCell>
-                                </TableRow> */}
-                                </Table>
-                              </Box>
-                            </Collapse>
-                          </TableCell>
-                        </TableRow>
-                      </React.Fragment>
-                    </>
-                  );
+                              {data.Deal_Name}
+                            </TableCell>
+                            <TableCell align="right">{data.id}</TableCell>
+                            <TableCell align="right">{data.Stage}</TableCell>
+                            <TableCell align="right">
+                              {data.Modified_Time}
+                            </TableCell>
+                            <TableCell align="right">{data.Amount}</TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                aria-label="expand row"
+                                size="small"
+                                onClick={() => handleSelect(data.id)}
+                              >
+                                {open ? (
+                                  <KeyboardArrowUpIcon />
+                                ) : (
+                                  <KeyboardArrowDownIcon />
+                                )}
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              style={{ paddingBottom: 0, paddingTop: 0 }}
+                              colSpan={6}
+                            >
+                              <Collapse
+                                in={open === data.Deal_Name}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <Box sx={{ margin: 1 }}>
+                                  <Table size="small" aria-label="purchases">
+                                    <TableRow>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Deal_Name"
+                                          type="text"
+                                          name="Deal_Name"
+                                          value={name}
+                                          onChange={(e) =>
+                                            setName(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Position"
+                                          type="text"
+                                          name="position"
+                                          value={position}
+                                          onChange={(e) =>
+                                            setPosition(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Team"
+                                          type="text"
+                                          name="team"
+                                          value={team}
+                                          onChange={(e) =>
+                                            setTeam(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="BDay"
+                                          type="date"
+                                          name="bday"
+                                          value={bday}
+                                          onChange={(e) =>
+                                            setBDay(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Email"
+                                          type="text"
+                                          name="email"
+                                          value={email}
+                                          onChange={(e) => checkEmail(e)}
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          disabled={disable}
+                                          sx={{ width: "150px" }}
+                                          type="submit"
+                                          variant="contained"
+                                          onClick={function refreshPage() {
+                                            window.location.reload(false);
+                                            window.location.reload(false);
+                                            handleUpdate(
+                                              data.id,
+                                              name,
+                                              position,
+                                              team,
+                                              bday,
+                                              email
+                                            );
+                                          }}
+                                        >
+                                          update
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  </Table>
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </React.Fragment>
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        <React.Fragment>
+                          <TableRow
+                            hover
+                            onClick={(event) =>
+                              handleClick(event, data.Account_Name)
+                            }
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={data.Account_Name}
+                            selected={isItemSelected}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                color="primary"
+                                checked={isItemSelected}
+                                value={data.id}
+                                onClick={(e) => setID(e.target.value)}
+                                // value={data.id}
+                                // onChange={(e) => setID(e.target.value)}
+                                inputProps={{
+                                  "aria-labelledby": labelId,
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
+                            >
+                              {data.Account_Name}
+                            </TableCell>
+                            <TableCell align="right">{data.id}</TableCell>
+                            <TableCell align="right">
+                              {data.Exchange_Rate}
+                            </TableCell>
+                            <TableCell align="right">
+                              {data.Modified_Time}
+                            </TableCell>
+                            <TableCell align="right">
+                              {data.Account_Number}
+                            </TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                aria-label="expand row"
+                                size="small"
+                                onClick={() => handleSelect(data.id)}
+                              >
+                                {open ? (
+                                  <KeyboardArrowUpIcon />
+                                ) : (
+                                  <KeyboardArrowDownIcon />
+                                )}
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              style={{ paddingBottom: 0, paddingTop: 0 }}
+                              colSpan={6}
+                            >
+                              <Collapse
+                                in={open === data.Account_Name}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <Box sx={{ margin: 1 }}>
+                                  <Table size="small" aria-label="purchases">
+                                    <TableRow>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Account_Name"
+                                          type="text"
+                                          name="Account_Name"
+                                          value={name}
+                                          onChange={(e) =>
+                                            setName(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Position"
+                                          type="text"
+                                          name="position"
+                                          value={position}
+                                          onChange={(e) =>
+                                            setPosition(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Team"
+                                          type="text"
+                                          name="team"
+                                          value={team}
+                                          onChange={(e) =>
+                                            setTeam(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="BDay"
+                                          type="date"
+                                          name="bday"
+                                          value={bday}
+                                          onChange={(e) =>
+                                            setBDay(e.target.value)
+                                          }
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <TextField
+                                          size="small"
+                                          placeholder="Email"
+                                          type="text"
+                                          name="email"
+                                          value={email}
+                                          onChange={(e) => checkEmail(e)}
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          disabled={disable}
+                                          sx={{ width: "150px" }}
+                                          type="submit"
+                                          variant="contained"
+                                          onClick={function refreshPage() {
+                                            window.location.reload(false);
+                                            window.location.reload(false);
+                                            handleUpdate(
+                                              data.id,
+                                              name,
+                                              position,
+                                              team,
+                                              bday,
+                                              email
+                                            );
+                                          }}
+                                        >
+                                          update
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  </Table>
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </React.Fragment>
+                      </>
+                    );
+                  }
                 })}
               {emptyRows > 0 && (
                 <TableRow
