@@ -24,10 +24,17 @@ import { visuallyHidden } from "@mui/utils";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Button, Chip, Collapse, Stack, TextField } from "@mui/material";
+import {
+  Button,
+  Chip,
+  Collapse,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
 import Insert from "./Insert";
 import Delete from "./Delete";
-import App from "../App";
 
 const ZOHO = window.ZOHO;
 
@@ -59,8 +66,9 @@ export default function EnhancedTable() {
   const [zohoLoaded, setZohoLoaded] = React.useState(false);
   const [allData, setAllData] = React.useState([]);
   console.log(allData);
+  let headCells = [];
   if (module === "CRUD") {
-    var headCells = [
+    headCells = [
       {
         id: "name",
         numeric: false,
@@ -74,10 +82,10 @@ export default function EnhancedTable() {
         label: "Position",
       },
       {
-        id: "team",
+        id: "id",
         numeric: true,
         disablePadding: false,
-        label: "Team",
+        label: "ID",
       },
       {
         id: "bday",
@@ -93,7 +101,7 @@ export default function EnhancedTable() {
       },
     ];
   } else if (module === "Deals") {
-    var headCells = [
+    headCells = [
       {
         id: "deal_Name",
         numeric: false,
@@ -126,13 +134,13 @@ export default function EnhancedTable() {
         label: "Amount",
       },
     ];
-  } else if (module === "Accounts") {
-    var headCells = [
+  } else if (module === "TESTS") {
+    headCells = [
       {
-        id: "account_Name",
+        id: "title",
         numeric: false,
         disablePadding: true,
-        label: "Account_Name",
+        label: "Title",
       },
       {
         id: "id",
@@ -141,23 +149,23 @@ export default function EnhancedTable() {
         label: "id",
       },
       {
-        id: "exchange_Rate",
+        id: "start_date",
         numeric: true,
         disablePadding: false,
-        label: "Exchange_Rate",
+        label: "Start_Date",
       },
 
       {
-        id: "time",
+        id: "color",
         numeric: true,
         disablePadding: false,
-        label: "Modified_Time",
+        label: "Color",
       },
       {
-        id: "account_Number",
+        id: "end_date",
         numeric: true,
         disablePadding: false,
-        label: "Account_Number",
+        label: "End_Date",
       },
     ];
   }
@@ -225,7 +233,7 @@ export default function EnhancedTable() {
     orderBy: PropTypes.string.isRequired,
     rowCount: PropTypes.number.isRequired,
   };
-  const [id, setID] = React.useState();
+  const [id, setID] = React.useState([]);
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
     // console.log("shezan", disable);
@@ -266,7 +274,7 @@ export default function EnhancedTable() {
 
         {numSelected > 0 ? (
           <Tooltip title="Delete">
-            <Delete id={id} />
+            <Delete id={id} module={module} />
           </Tooltip>
         ) : (
           <Tooltip title="Filter list">
@@ -282,6 +290,7 @@ export default function EnhancedTable() {
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
+
   React.useEffect(() => {
     ZOHO.embeddedApp.on("PageLoad", function (data) {
       //Custom Bussiness logic goes here
@@ -297,11 +306,20 @@ export default function EnhancedTable() {
     data.push({
       name: item.Name,
       position: item.Position,
-      team: item.Team,
+      id: item.id,
       email: item.Email,
       bday: item.BDay,
+      deal_name: item.deal_name,
+      stage: item.stage,
+      modified_time: item.modified_time,
+      amount: item.amount,
+      title: item.title,
+      start_date: item.start_date,
+      color: item.color,
+      end_date: item.end_date,
     });
   });
+
   React.useEffect(() => {
     if (zohoLoaded) {
       ZOHO.CRM.API.getAllRecords({
@@ -363,34 +381,73 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
-  const handleUpdate = (id, name, position, team, bday, email) => {
+  const handleUpdate = (
+    id,
+    name,
+    position,
+    bday,
+    email,
+    deal_name,
+    stage,
+    modified_time,
+    amount,
+    title,
+    start_date,
+    color,
+    end_date
+  ) => {
     var config = {
       Entity: module,
       APIData: {
         id: id,
         Name: name,
         Position: position,
-        Team: team,
         BDay: bday,
         Email: email,
+        Deal_Name: deal_name,
+        Stage: stage,
+        Modified_Time: modified_time,
+        Amount: amount,
+        Title: title,
+        Start_Date: start_date,
+        End_Date: end_date,
+        Color: color,
       },
       Trigger: ["workflow"],
     };
     // console.log("mahadi", config);
     ZOHO.CRM.API.updateRecord(config).then(function (data) {
-      // console.log(data);
+      console.log(data);
     });
   };
 
   const [name, setName] = React.useState("");
   const [position, setPosition] = React.useState("");
-  const [team, setTeam] = React.useState("");
+  // const [team, setTeam] = React.useState("");
   const [bday, setBDay] = React.useState("");
   const [email, setEmail] = React.useState();
+  const [stage, setStage] = React.useState();
+  const [deal_name, setDeal_Name] = React.useState();
+  const [modified_time, setModified_Time] = React.useState();
+  const [amount, setAmount] = React.useState();
+  const [start_date, setStart_Date] = React.useState();
+  const [end_date, setEnd_Date] = React.useState();
+  const [title, setTitle] = React.useState();
+  const [color, setColor] = React.useState();
+
+  // const [deal_Name, setDeal_Name] = React.useState("");
+
+  // const [modified_Time, setModified_Time] = React.useState("");
+  // const [stage, setStage] = React.useState("");
+  // const [amount, setAmount] = React.useState("");
 
   const [search, setSearch] = React.useState("");
+  const [value, setValue] = React.useState(0);
 
-  console.log(id);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
   const regex =
     /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
   const [disable, setDisable] = React.useState(true);
@@ -413,15 +470,20 @@ export default function EnhancedTable() {
             }}
           >
             <Stack direction="row" spacing={1} sx={{ paddingRight: "200px" }}>
-              <Button variant="contained" onClick={() => setModule("CRUD")}>
+              {/* <Button variant="contained" onClick={() => setModule("CRUD")}>
                 CRUD
               </Button>
               <Button variant="contained" onClick={() => setModule("Deals")}>
                 Deals
               </Button>
-              <Button variant="contained" onClick={() => setModule("Accounts")}>
-                Accounts
-              </Button>
+              <Button variant="contained" onClick={() => setModule("TESTS")}>
+                TESTS
+              </Button> */}
+              <Tabs value={value} onChange={handleChange}>
+                <Tab label="CRUD" onClick={() => setModule("CRUD")} />
+                <Tab label="Deals" onClick={() => setModule("Deals")} />
+                <Tab label="TESTS" onClick={() => setModule("TESTS")} />
+              </Tabs>
             </Stack>
             <TextField
               fullWidth
@@ -454,15 +516,15 @@ export default function EnhancedTable() {
               onRequestSort={handleRequestSort}
               rowCount={data.length}
             />
+
             <TableBody>
               {allData
                 .filter((user) => user.id.includes(search))
                 .map((data, index) => {
-                  // console.log({ data });
-                  const isItemSelected = isSelected(data.Name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
+                  // console.log("appon", data);
                   if (module === "CRUD") {
+                    const isItemSelected = isSelected(data.Name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <>
                         <React.Fragment>
@@ -498,7 +560,7 @@ export default function EnhancedTable() {
                               {data.Name}
                             </TableCell>
                             <TableCell align="right">{data.Position}</TableCell>
-                            <TableCell align="right">{data.Team}</TableCell>
+                            <TableCell align="right">{data.id}</TableCell>
                             <TableCell align="right">{data.BDay}</TableCell>
                             <TableCell align="right">{data.Email}</TableCell>
                             <TableCell align="right">
@@ -521,7 +583,7 @@ export default function EnhancedTable() {
                               colSpan={6}
                             >
                               <Collapse
-                                in={open === data.Name}
+                                in={open === data.id}
                                 timeout="auto"
                                 unmountOnExit
                               >
@@ -555,12 +617,12 @@ export default function EnhancedTable() {
                                       <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="Team"
+                                          placeholder="ID"
                                           type="text"
-                                          name="team"
-                                          value={team}
+                                          name="id"
+                                          value={id}
                                           onChange={(e) =>
-                                            setTeam(e.target.value)
+                                            setID(e.target.value)
                                           }
                                         />
                                       </TableCell>
@@ -599,7 +661,7 @@ export default function EnhancedTable() {
                                               data.id,
                                               name,
                                               position,
-                                              team,
+
                                               bday,
                                               email
                                             );
@@ -618,6 +680,8 @@ export default function EnhancedTable() {
                       </>
                     );
                   } else if (module === "Deals") {
+                    const isItemSelected = isSelected(data.Deal_Name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <>
                         <React.Fragment>
@@ -680,7 +744,7 @@ export default function EnhancedTable() {
                               colSpan={6}
                             >
                               <Collapse
-                                in={open === data.Deal_Name}
+                                in={open === data.id}
                                 timeout="auto"
                                 unmountOnExit
                               >
@@ -693,74 +757,78 @@ export default function EnhancedTable() {
                                           placeholder="Deal_Name"
                                           type="text"
                                           name="Deal_Name"
-                                          value={name}
+                                          value={deal_name}
+                                          key={data.Deal}
                                           onChange={(e) =>
-                                            setName(e.target.value)
+                                            setDeal_Name(e.target.value)
                                           }
                                         />
                                       </TableCell>
                                       <TableCell>
-                                        <TextField
+                                        {/* <TextField
                                           size="small"
-                                          placeholder="Position"
+                                          placeholder="ID"
                                           type="text"
-                                          name="position"
-                                          value={position}
+                                          name="id"
+                                          value={id}
                                           onChange={(e) =>
-                                            setPosition(e.target.value)
+                                            setID(e.target.value)
                                           }
-                                        />
+                                        /> */}
                                       </TableCell>
                                       <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="Team"
+                                          placeholder="Stage"
                                           type="text"
-                                          name="team"
-                                          value={team}
+                                          name="Stage"
+                                          value={stage}
                                           onChange={(e) =>
-                                            setTeam(e.target.value)
+                                            setStage(e.target.value)
                                           }
                                         />
                                       </TableCell>
                                       <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="BDay"
+                                          placeholder="Modified_Time"
                                           type="date"
-                                          name="bday"
-                                          value={bday}
+                                          name="Modified_Time"
+                                          value={modified_time}
                                           onChange={(e) =>
-                                            setBDay(e.target.value)
+                                            setModified_Time(e.target.value)
                                           }
                                         />
                                       </TableCell>
+
                                       <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="Email"
+                                          placeholder="Amount"
                                           type="text"
-                                          name="email"
-                                          value={email}
-                                          onChange={(e) => checkEmail(e)}
+                                          name="Amount"
+                                          value={amount}
+                                          onChange={(e) =>
+                                            setAmount(e.target.value)
+                                          }
                                         />
                                       </TableCell>
                                       <TableCell>
                                         <Button
-                                          disabled={disable}
+                                          // disabled={disable}
                                           sx={{ width: "150px" }}
                                           type="submit"
                                           variant="contained"
                                           onClick={function refreshPage() {
                                             window.location.reload(false);
                                             window.location.reload(false);
+                                            window.location.reload(false);
                                             handleUpdate(
-                                              data.id,
-                                              name,
-                                              position,
-                                              team,
-                                              bday,
-                                              email
+                                              id,
+                                              deal_name,
+                                              stage,
+                                              modified_time,
+                                              amount
                                             );
                                           }}
                                         >
@@ -776,167 +844,157 @@ export default function EnhancedTable() {
                         </React.Fragment>
                       </>
                     );
-                  } else {
+                  } else if (module === "TESTS") {
+                    const isItemSelected = isSelected(data.id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <>
-                        <React.Fragment>
-                          <TableRow
-                            hover
-                            onClick={(event) =>
-                              handleClick(event, data.Account_Name)
-                            }
-                            role="checkbox"
-                            aria-checked={isItemSelected}
-                            tabIndex={-1}
-                            key={data.Account_Name}
-                            selected={isItemSelected}
-                            sx={{ cursor: "pointer" }}
+                        <TableRow
+                          hover
+                          onClick={(event) => handleClick(event, data.id)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={data.id}
+                          selected={isItemSelected}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              value={data.id}
+                              onClick={(e) => setID(e.target.value)}
+                              // value={data.id}
+                              // onChange={(e) => setID(e.target.value)}
+                              inputProps={{
+                                "aria-labelledby": labelId,
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
                           >
-                            <TableCell padding="checkbox">
-                              <Checkbox
-                                color="primary"
-                                checked={isItemSelected}
-                                value={data.id}
-                                onClick={(e) => setID(e.target.value)}
-                                // value={data.id}
-                                // onChange={(e) => setID(e.target.value)}
-                                inputProps={{
-                                  "aria-labelledby": labelId,
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell
-                              component="th"
-                              id={labelId}
-                              scope="row"
-                              padding="none"
+                            {data?.Title}
+                          </TableCell>
+                          <TableCell align="right">{data.id}</TableCell>
+                          <TableCell align="right">{data.Start_Date}</TableCell>
+                          <TableCell align="right">{data.Color}</TableCell>
+                          <TableCell align="right">{data.End_Date}</TableCell>
+                          <TableCell align="right">
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={() => handleSelect(data.id)}
                             >
-                              {data.Account_Name}
-                            </TableCell>
-                            <TableCell align="right">{data.id}</TableCell>
-                            <TableCell align="right">
-                              {data.Exchange_Rate}
-                            </TableCell>
-                            <TableCell align="right">
-                              {data.Modified_Time}
-                            </TableCell>
-                            <TableCell align="right">
-                              {data.Account_Number}
-                            </TableCell>
-                            <TableCell align="right">
-                              <IconButton
-                                aria-label="expand row"
-                                size="small"
-                                onClick={() => handleSelect(data.id)}
-                              >
-                                {open ? (
-                                  <KeyboardArrowUpIcon />
-                                ) : (
-                                  <KeyboardArrowDownIcon />
-                                )}
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell
-                              style={{ paddingBottom: 0, paddingTop: 0 }}
-                              colSpan={6}
+                              {open ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            style={{ paddingBottom: 0, paddingTop: 0 }}
+                            colSpan={6}
+                          >
+                            <Collapse
+                              in={open === data.id}
+                              timeout="auto"
+                              unmountOnExit
                             >
-                              <Collapse
-                                in={open === data.Account_Name}
-                                timeout="auto"
-                                unmountOnExit
-                              >
-                                <Box sx={{ margin: 1 }}>
-                                  <Table size="small" aria-label="purchases">
-                                    <TableRow>
-                                      <TableCell>
-                                        <TextField
-                                          size="small"
-                                          placeholder="Account_Name"
-                                          type="text"
-                                          name="Account_Name"
-                                          value={name}
-                                          onChange={(e) =>
-                                            setName(e.target.value)
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <TextField
-                                          size="small"
-                                          placeholder="Position"
-                                          type="text"
-                                          name="position"
-                                          value={position}
-                                          onChange={(e) =>
-                                            setPosition(e.target.value)
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <TextField
-                                          size="small"
-                                          placeholder="Team"
-                                          type="text"
-                                          name="team"
-                                          value={team}
-                                          onChange={(e) =>
-                                            setTeam(e.target.value)
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <TextField
-                                          size="small"
-                                          placeholder="BDay"
-                                          type="date"
-                                          name="bday"
-                                          value={bday}
-                                          onChange={(e) =>
-                                            setBDay(e.target.value)
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <TextField
-                                          size="small"
-                                          placeholder="Email"
-                                          type="text"
-                                          name="email"
-                                          value={email}
-                                          onChange={(e) => checkEmail(e)}
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <Button
-                                          disabled={disable}
-                                          sx={{ width: "150px" }}
-                                          type="submit"
-                                          variant="contained"
-                                          onClick={function refreshPage() {
-                                            window.location.reload(false);
-                                            window.location.reload(false);
-                                            handleUpdate(
-                                              data.id,
-                                              name,
-                                              position,
-                                              team,
-                                              bday,
-                                              email
-                                            );
-                                          }}
-                                        >
-                                          update
-                                        </Button>
-                                      </TableCell>
-                                    </TableRow>
-                                  </Table>
-                                </Box>
-                              </Collapse>
-                            </TableCell>
-                          </TableRow>
-                        </React.Fragment>
+                              <Box sx={{ margin: 1 }}>
+                                <Table size="small" aria-label="purchases">
+                                  <TableRow>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Title"
+                                        type="text"
+                                        name="title"
+                                        value={title}
+                                        onChange={(e) =>
+                                          setTitle(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="ID"
+                                        type="number"
+                                        name="id"
+                                        value={id}
+                                        onChange={(e) => setID(e.target.value)}
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Exchange_Rate"
+                                        type="date"
+                                        name="exchange_rate"
+                                        value={start_date}
+                                        onChange={(e) =>
+                                          setStart_Date(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="Color"
+                                        type="text"
+                                        name="color"
+                                        value={color}
+                                        onChange={(e) =>
+                                          setColor(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        size="small"
+                                        placeholder="End_Date"
+                                        type="date"
+                                        name="end_date"
+                                        value={end_date}
+                                        onChange={(e) =>
+                                          setEnd_Date(e.target.value)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        sx={{ width: "150px" }}
+                                        type="submit"
+                                        variant="contained"
+                                        onClick={function refreshPage() {
+                                          window.location.reload(false);
+                                          window.location.reload(false);
+                                          handleUpdate(
+                                            data.id,
+                                            title,
+                                            start_date,
+                                            color,
+                                            end_date
+                                          );
+                                        }}
+                                      >
+                                        update
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                </Table>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
                       </>
                     );
                   }

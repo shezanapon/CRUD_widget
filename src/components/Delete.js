@@ -13,8 +13,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function Delete({ id }) {
-  // console.log(id);
+export default function Delete({ id, module }) {
+  console.log(id);
 
   const [open, setOpen] = React.useState(false);
   const handleshut = () => {
@@ -27,7 +27,7 @@ export default function Delete({ id }) {
 
   const handleDelete = async (id) => {
     await ZOHO.CRM.API.deleteRecord({
-      Entity: "CRUD",
+      Entity: module,
       RecordID: id,
     }).then(function (data) {
       console.log(data);
