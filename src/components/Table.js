@@ -24,15 +24,7 @@ import { visuallyHidden } from "@mui/utils";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import {
-  Button,
-  Chip,
-  Collapse,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-} from "@mui/material";
+import { Button, Collapse, Stack, Tab, Tabs, TextField } from "@mui/material";
 import Insert from "./Insert";
 import Delete from "./Delete";
 
@@ -137,10 +129,10 @@ export default function EnhancedTable() {
   } else if (module === "TESTS") {
     headCells = [
       {
-        id: "title",
+        id: "name",
         numeric: false,
         disablePadding: true,
-        label: "Title",
+        label: "Name",
       },
       {
         id: "id",
@@ -234,6 +226,7 @@ export default function EnhancedTable() {
     rowCount: PropTypes.number.isRequired,
   };
   const [id, setID] = React.useState([]);
+  // console.log("sss", id);
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
     // console.log("shezan", disable);
@@ -381,42 +374,60 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
-  const handleUpdate = (
-    id,
-    name,
-    position,
-    bday,
-    email,
-    deal_name,
-    stage,
-    modified_time,
-    amount,
-    title,
-    start_date,
-    color,
-    end_date
-  ) => {
-    var config = {
-      Entity: module,
+  const handleUpdate = (id, name, position, bday, email) => {
+    window.location.reload(false);
+    window.location.reload(false);
+    let config = {
+      Entity: "CRUD",
       APIData: {
         id: id,
         Name: name,
         Position: position,
         BDay: bday,
         Email: email,
+      },
+      Trigger: ["workflow"],
+    };
+    console.log("mahadi", config);
+    ZOHO.CRM.API.updateRecord(config).then(function (data) {
+      console.log(data);
+    });
+  };
+  const handleUpdate1 = (id, deal_name, stage, modified_time, amount) => {
+    window.location.reload(false);
+    window.location.reload(false);
+    let entry = {
+      Entity: "Deals",
+      APIData: {
+        id: id,
         Deal_Name: deal_name,
         Stage: stage,
         Modified_Time: modified_time,
         Amount: amount,
-        Title: title,
+      },
+      Trigger: ["workflow"],
+    };
+    console.log("mahadi", entry);
+    ZOHO.CRM.API.updateRecord(entry).then(function (data) {
+      console.log(data);
+    });
+  };
+  const handleUpdate2 = (id, name, start_date, color, end_date) => {
+    window.location.reload(false);
+    window.location.reload(false);
+    let show = {
+      Entity: "TESTS",
+      APIData: {
+        id: id,
+        Name: name,
         Start_Date: start_date,
         End_Date: end_date,
         Color: color,
       },
       Trigger: ["workflow"],
     };
-    // console.log("mahadi", config);
-    ZOHO.CRM.API.updateRecord(config).then(function (data) {
+    console.log("mahadi", show);
+    ZOHO.CRM.API.updateRecord(show).then(function (data) {
       console.log(data);
     });
   };
@@ -456,6 +467,7 @@ export default function EnhancedTable() {
     setDisable(!regex.test(e.target.value));
     setEmail(e.target.value);
   };
+
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
@@ -463,40 +475,34 @@ export default function EnhancedTable() {
         <Box>
           <Box
             sx={{
-              width: 900,
-              maxWidth: "100%",
               display: "flex",
               marginBottom: "20px",
             }}
           >
-            <Stack direction="row" spacing={1} sx={{ paddingRight: "200px" }}>
-              {/* <Button variant="contained" onClick={() => setModule("CRUD")}>
-                CRUD
-              </Button>
-              <Button variant="contained" onClick={() => setModule("Deals")}>
-                Deals
-              </Button>
-              <Button variant="contained" onClick={() => setModule("TESTS")}>
-                TESTS
-              </Button> */}
-              <Tabs value={value} onChange={handleChange}>
-                <Tab label="CRUD" onClick={() => setModule("CRUD")} />
-                <Tab label="Deals" onClick={() => setModule("Deals")} />
-                <Tab label="TESTS" onClick={() => setModule("TESTS")} />
-              </Tabs>
-            </Stack>
-            <TextField
-              fullWidth
-              label="Search here..."
-              size="small"
-              id="fullWidth"
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                style: {
-                  borderRadius: "20px",
-                },
-              }}
-            />
+            <Box sx={{ width: "50%" }}>
+              <Stack direction="row" spacing={1}>
+                <Tabs value={value} onChange={handleChange}>
+                  <Tab label="CRUD" onClick={() => setModule("CRUD")} />
+                  <Tab label="Deals" onClick={() => setModule("Deals")} />
+                  <Tab label="TESTS" onClick={() => setModule("TESTS")} />
+                </Tabs>
+              </Stack>
+            </Box>
+            <Box sx={{ width: "50%" }}>
+              <TextField
+                sx={{ width: "400px" }}
+                label="Search by Name..."
+                size="small"
+                id="fullWidth"
+                onChange={(e) => setSearch(e.target.value)}
+                InputProps={{
+                  endAdornment: <SearchIcon />,
+                  style: {
+                    borderRadius: "20px",
+                  },
+                }}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -519,7 +525,19 @@ export default function EnhancedTable() {
 
             <TableBody>
               {allData
-                .filter((user) => user.id.includes(search))
+                .filter(
+                  (user) => user?.id.includes(search)
+                  // {
+                  //   if (module === "Deals") {
+                  //     return user.Deal_Name.includes(search);
+                  //   } else {
+                  //     return user.Name.includes(search);
+                  //   }
+                  // }
+
+                  // user.Name ? user.id : user.Deal_Name.includes(search)
+                )
+
                 .map((data, index) => {
                   // console.log("appon", data);
                   if (module === "CRUD") {
@@ -527,14 +545,13 @@ export default function EnhancedTable() {
                     const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <>
-                        <React.Fragment>
+                        <React.Fragment key={data.Name}>
                           <TableRow
                             hover
                             onClick={(event) => handleClick(event, data.Name)}
                             role="checkbox"
                             aria-checked={isItemSelected}
                             tabIndex={-1}
-                            key={data.Name}
                             selected={isItemSelected}
                             sx={{ cursor: "pointer" }}
                           >
@@ -543,9 +560,11 @@ export default function EnhancedTable() {
                                 color="primary"
                                 checked={isItemSelected}
                                 value={data.id}
-                                onClick={(e) => setID(e.target.value)}
+                                onClick={(e) =>
+                                  setID((prev) => [...prev, e.target.value])
+                                }
                                 // value={data.id}
-                                // onChange={(e) => setID(e.target.value)}
+                                // onChange={(e) => setID((prev) => [...prev, e.target.value])}
                                 inputProps={{
                                   "aria-labelledby": labelId,
                                 }}
@@ -614,7 +633,7 @@ export default function EnhancedTable() {
                                           }
                                         />
                                       </TableCell>
-                                      <TableCell>
+                                      {/* <TableCell>
                                         <TextField
                                           size="small"
                                           placeholder="ID"
@@ -625,7 +644,7 @@ export default function EnhancedTable() {
                                             setID(e.target.value)
                                           }
                                         />
-                                      </TableCell>
+                                      </TableCell> */}
                                       <TableCell>
                                         <TextField
                                           size="small"
@@ -655,13 +674,10 @@ export default function EnhancedTable() {
                                           type="submit"
                                           variant="contained"
                                           onClick={function refreshPage() {
-                                            window.location.reload(false);
-                                            window.location.reload(false);
                                             handleUpdate(
                                               data.id,
                                               name,
                                               position,
-
                                               bday,
                                               email
                                             );
@@ -684,7 +700,7 @@ export default function EnhancedTable() {
                     const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <>
-                        <React.Fragment>
+                        <React.Fragment key={index}>
                           <TableRow
                             hover
                             onClick={(event) =>
@@ -693,7 +709,6 @@ export default function EnhancedTable() {
                             role="checkbox"
                             aria-checked={isItemSelected}
                             tabIndex={-1}
-                            key={data.Deal_Name}
                             selected={isItemSelected}
                             sx={{ cursor: "pointer" }}
                           >
@@ -702,7 +717,9 @@ export default function EnhancedTable() {
                                 color="primary"
                                 checked={isItemSelected}
                                 value={data.id}
-                                onClick={(e) => setID(e.target.value)}
+                                onClick={(e) =>
+                                  setID((prev) => [...prev, e.target.value])
+                                }
                                 // value={data.id}
                                 // onChange={(e) => setID(e.target.value)}
                                 inputProps={{
@@ -758,7 +775,6 @@ export default function EnhancedTable() {
                                           type="text"
                                           name="Deal_Name"
                                           value={deal_name}
-                                          key={data.Deal}
                                           onChange={(e) =>
                                             setDeal_Name(e.target.value)
                                           }
@@ -819,18 +835,15 @@ export default function EnhancedTable() {
                                           sx={{ width: "150px" }}
                                           type="submit"
                                           variant="contained"
-                                          onClick={function refreshPage() {
-                                            window.location.reload(false);
-                                            window.location.reload(false);
-                                            window.location.reload(false);
-                                            handleUpdate(
-                                              id,
+                                          onClick={() =>
+                                            handleUpdate1(
+                                              data.id,
                                               deal_name,
                                               stage,
                                               modified_time,
                                               amount
-                                            );
-                                          }}
+                                            )
+                                          }
                                         >
                                           update
                                         </Button>
@@ -848,14 +861,13 @@ export default function EnhancedTable() {
                     const isItemSelected = isSelected(data.id);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     return (
-                      <>
+                      <React.Fragment>
                         <TableRow
                           hover
                           onClick={(event) => handleClick(event, data.id)}
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
-                          key={data.id}
                           selected={isItemSelected}
                           sx={{ cursor: "pointer" }}
                         >
@@ -864,7 +876,9 @@ export default function EnhancedTable() {
                               color="primary"
                               checked={isItemSelected}
                               value={data.id}
-                              onClick={(e) => setID(e.target.value)}
+                              onClick={(e) =>
+                                setID((prev) => [...prev, e.target.value])
+                              }
                               // value={data.id}
                               // onChange={(e) => setID(e.target.value)}
                               inputProps={{
@@ -878,7 +892,7 @@ export default function EnhancedTable() {
                             scope="row"
                             padding="none"
                           >
-                            {data?.Title}
+                            {data?.Name}
                           </TableCell>
                           <TableCell align="right">{data.id}</TableCell>
                           <TableCell align="right">{data.Start_Date}</TableCell>
@@ -923,7 +937,7 @@ export default function EnhancedTable() {
                                         }
                                       />
                                     </TableCell>
-                                    <TableCell>
+                                    {/* <TableCell>
                                       <TextField
                                         size="small"
                                         placeholder="ID"
@@ -932,7 +946,7 @@ export default function EnhancedTable() {
                                         value={id}
                                         onChange={(e) => setID(e.target.value)}
                                       />
-                                    </TableCell>
+                                    </TableCell> */}
                                     <TableCell>
                                       <TextField
                                         size="small"
@@ -977,7 +991,7 @@ export default function EnhancedTable() {
                                         onClick={function refreshPage() {
                                           window.location.reload(false);
                                           window.location.reload(false);
-                                          handleUpdate(
+                                          handleUpdate2(
                                             data.id,
                                             title,
                                             start_date,
@@ -995,7 +1009,7 @@ export default function EnhancedTable() {
                             </Collapse>
                           </TableCell>
                         </TableRow>
-                      </>
+                      </React.Fragment>
                     );
                   }
                 })}

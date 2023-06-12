@@ -12,7 +12,7 @@ export default function Insert({ module }) {
   const [name, setName] = React.useState();
   const [position, setPosition] = React.useState();
   const [id, setID] = React.useState();
-  const [aid, setAID] = React.useState();
+  // const [aid, setAID] = React.useState();
   const [bday, setBDay] = React.useState();
   const [email, setEmail] = React.useState();
   const [stage, setStage] = React.useState();
@@ -20,11 +20,10 @@ export default function Insert({ module }) {
   const [modified_time, setModified_Time] = React.useState();
   const [color, setColor] = React.useState();
   const [amount, setAmount] = React.useState();
-  const [title, setTitle] = React.useState();
 
   const [start_date, setStart_Date] = React.useState();
   const [end_date, setEnd_Date] = React.useState();
-  const [ownerName, setOwnerName] = React.useState();
+  // const [ownerName, setOwnerName] = React.useState();
 
   const [open, setOpen] = React.useState(false);
 
@@ -39,7 +38,6 @@ export default function Insert({ module }) {
       stage,
       modified_time,
       amount,
-      title,
       start_date,
       color,
       end_date
@@ -56,7 +54,7 @@ export default function Insert({ module }) {
   const handleClose = () => {
     setOpen(false);
   };
-
+  // console.log("data check", start_date, color, end_date);
   const handleInsert = (
     id,
     name,
@@ -67,7 +65,7 @@ export default function Insert({ module }) {
     stage,
     modified_time,
     amount,
-    title,
+
     start_date,
     color,
     end_date
@@ -90,9 +88,9 @@ export default function Insert({ module }) {
         Modified_Time: modified_time,
         Amount: amount,
       };
-    } else {
+    } else if (module === "TESTS") {
       recordData = {
-        Title: title,
+        Name: name,
         Start_Date: start_date,
         id: id,
         End_Date: end_date,
@@ -192,7 +190,7 @@ export default function Insert({ module }) {
               variant="standard"
               onChange={(e) => setStage(e.target.value)}
             />
-            <TextField
+            {/* <TextField
               autoFocus
               margin="dense"
               id="id"
@@ -201,7 +199,7 @@ export default function Insert({ module }) {
               fullWidth
               variant="standard"
               onChange={(e) => setID(e.target.value)}
-            />
+            /> */}
             <TextField
               autoFocus
               margin="dense"
@@ -227,12 +225,12 @@ export default function Insert({ module }) {
             <TextField
               autoFocus
               margin="dense"
-              id="title"
-              label="Title"
+              id="name"
+              label="Name"
               type="text"
               fullWidth
               variant="standard"
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
             />
             {/* <TextField
               autoFocus
