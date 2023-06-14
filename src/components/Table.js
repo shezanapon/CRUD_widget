@@ -24,9 +24,21 @@ import { visuallyHidden } from "@mui/utils";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Button, Collapse, Stack, Tab, Tabs, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Collapse,
+  Snackbar,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
 import Insert from "./Insert";
 import Delete from "./Delete";
+import dayjs from "dayjs";
+import { getDateSectionConfigFromFormatToken } from "@mui/x-date-pickers/internals/hooks/useField/useField.utils";
 
 const ZOHO = window.ZOHO;
 
@@ -34,9 +46,10 @@ export default function EnhancedTable() {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(1);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [snackbar, setSnackbar] = React.useState(false);
 
   const data = [];
 
@@ -314,16 +327,32 @@ export default function EnhancedTable() {
   });
 
   React.useEffect(() => {
-    if (zohoLoaded) {
-      ZOHO.CRM.API.getAllRecords({
+    async function fetchData() {
+      // You can await here
+      setLoad(true);
+      await ZOHO.CRM.API.getAllRecords({
         Entity: module,
         sort_order: "asc",
         per_page: 200,
         page: 1,
       }).then(function (data) {
         setAllData(data.data);
+        setLoad(false);
       });
+      // ...
     }
+    fetchData();
+    // if (zohoLoaded) {
+    //    ZOHO.CRM.API.getAllRecords ({
+    //     Entity: module,
+    //     sort_order: "asc",
+    //     per_page: 200,
+    //     page: 1,
+    //   }).then(function (data) {
+    //     setAllData(data.data);
+    //   });
+    //   setLoad(true);
+    // }
   }, [zohoLoaded, module]);
 
   const handleSelectAllClick = (event) => {
@@ -375,6 +404,7 @@ export default function EnhancedTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   const handleUpdate = (id, name, position, bday, email) => {
+    setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
     let config = {
@@ -394,6 +424,7 @@ export default function EnhancedTable() {
     });
   };
   const handleUpdate1 = (id, deal_name, stage, modified_time, amount) => {
+    setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
     let entry = {
@@ -413,6 +444,7 @@ export default function EnhancedTable() {
     });
   };
   const handleUpdate2 = (id, name, start_date, color, end_date) => {
+    setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
     let show = {
@@ -431,7 +463,7 @@ export default function EnhancedTable() {
       console.log(data);
     });
   };
-
+  const [load, setLoad] = React.useState(false);
   const [name, setName] = React.useState("");
   const [position, setPosition] = React.useState("");
   // const [team, setTeam] = React.useState("");
@@ -467,6 +499,8 @@ export default function EnhancedTable() {
     setDisable(!regex.test(e.target.value));
     setEmail(e.target.value);
   };
+
+  // const keys = allData.keys;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -526,7 +560,11 @@ export default function EnhancedTable() {
             <TableBody>
               {allData
                 .filter(
-                  (user) => user?.id.includes(search)
+                  (user) =>
+                    Object.values((key) =>
+                      user[key].toLowerCase().includes(search)
+                    )
+
                   // {
                   //   if (module === "Deals") {
                   //     return user.Deal_Name.includes(search);
@@ -537,6 +575,7 @@ export default function EnhancedTable() {
 
                   // user.Name ? user.id : user.Deal_Name.includes(search)
                 )
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
                 .map((data, index) => {
                   // console.log("appon", data);
@@ -738,7 +777,7 @@ export default function EnhancedTable() {
                             <TableCell align="right">{data.id}</TableCell>
                             <TableCell align="right">{data.Stage}</TableCell>
                             <TableCell align="right">
-                              {data.Modified_Time}
+                              {dayjs(data.Modified_Time).format("DD/MM/YYYY")}
                             </TableCell>
                             <TableCell align="right">{data.Amount}</TableCell>
                             <TableCell align="right">
@@ -1026,7 +1065,7 @@ export default function EnhancedTable() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 15]}
           component="div"
           count={data.length}
           rowsPerPage={rowsPerPage}
@@ -1039,6 +1078,32 @@ export default function EnhancedTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      <br />
+      <br />
+      <br />
+      {load && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: 50,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+      {snackbar && (
+        <Snackbar
+          open={snackbar}
+          autoHideDuration={600}
+          message="Note archived"
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            successfully updated!
+          </Alert>
+        </Snackbar>
+      )}
     </Box>
   );
 }
