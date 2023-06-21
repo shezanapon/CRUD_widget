@@ -38,7 +38,6 @@ import {
 import Insert from "./Insert";
 import Delete from "./Delete";
 import dayjs from "dayjs";
-import { getDateSectionConfigFromFormatToken } from "@mui/x-date-pickers/internals/hooks/useField/useField.utils";
 
 const ZOHO = window.ZOHO;
 
@@ -46,10 +45,11 @@ export default function EnhancedTable() {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [snackbar, setSnackbar] = React.useState(false);
+  const [emailVal, setEmailVal] = React.useState(false);
 
   const data = [];
 
@@ -274,7 +274,7 @@ export default function EnhancedTable() {
             id="tableTitle"
             component="div"
           >
-            <Insert module={module} />
+            <Insert module={module} data={allData} />
           </Typography>
         )}
 
@@ -392,6 +392,13 @@ export default function EnhancedTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
@@ -418,7 +425,7 @@ export default function EnhancedTable() {
       },
       Trigger: ["workflow"],
     };
-    console.log("mahadi", config);
+    // console.log("mahadi", config);
     ZOHO.CRM.API.updateRecord(config).then(function (data) {
       console.log(data);
     });
@@ -445,8 +452,6 @@ export default function EnhancedTable() {
   };
   const handleUpdate2 = (id, name, start_date, color, end_date) => {
     setSnackbar(true);
-    window.location.reload(false);
-    window.location.reload(false);
     let show = {
       Entity: "TESTS",
       APIData: {
@@ -468,7 +473,7 @@ export default function EnhancedTable() {
   const [position, setPosition] = React.useState("");
   // const [team, setTeam] = React.useState("");
   const [bday, setBDay] = React.useState("");
-  const [email, setEmail] = React.useState();
+  const [email, setEmail] = React.useState(null);
   const [stage, setStage] = React.useState();
   const [deal_name, setDeal_Name] = React.useState();
   const [modified_time, setModified_Time] = React.useState();
@@ -490,14 +495,25 @@ export default function EnhancedTable() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  // const checkEmail=()=>{
+  //   if(){
 
-  const regex =
-    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
-  const [disable, setDisable] = React.useState(true);
-
-  const checkEmail = (e) => {
-    setDisable(!regex.test(e.target.value));
-    setEmail(e.target.value);
+  //   }
+  // }
+  const handleEmail = () => {
+    if (
+      String(email)
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+    ) {
+      return false;
+    } else if (email === null) {
+      return false;
+    } else {
+      return true;
+    }
   };
 
   // const keys = allData.keys;
@@ -525,7 +541,7 @@ export default function EnhancedTable() {
             <Box sx={{ width: "50%" }}>
               <TextField
                 sx={{ width: "400px" }}
-                label="Search by Name..."
+                label="Search..."
                 size="small"
                 id="fullWidth"
                 onChange={(e) => setSearch(e.target.value)}
@@ -559,22 +575,14 @@ export default function EnhancedTable() {
 
             <TableBody>
               {allData
-                .filter(
-                  (user) =>
-                    Object.values((key) =>
-                      user[key].toLowerCase().includes(search)
-                    )
-
-                  // {
-                  //   if (module === "Deals") {
-                  //     return user.Deal_Name.includes(search);
-                  //   } else {
-                  //     return user.Name.includes(search);
-                  //   }
-                  // }
-
-                  // user.Name ? user.id : user.Deal_Name.includes(search)
-                )
+                .filter((user) => {
+                  return Object.values(user).some((value) => {
+                    if (typeof value === "string") {
+                      return value.toLowerCase().includes(search.toLowerCase());
+                    }
+                    return false;
+                  });
+                })
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
                 .map((data, index) => {
@@ -602,8 +610,6 @@ export default function EnhancedTable() {
                                 onClick={(e) =>
                                   setID((prev) => [...prev, e.target.value])
                                 }
-                                // value={data.id}
-                                // onChange={(e) => setID((prev) => [...prev, e.target.value])}
                                 inputProps={{
                                   "aria-labelledby": labelId,
                                 }}
@@ -699,16 +705,20 @@ export default function EnhancedTable() {
                                       <TableCell>
                                         <TextField
                                           size="small"
+                                          error={handleEmail()}
                                           placeholder="Email"
                                           type="text"
                                           name="email"
                                           value={email}
-                                          onChange={(e) => checkEmail(e)}
+                                          onChange={(e) =>
+                                            setEmail(e.target.value)
+                                          }
                                         />
                                       </TableCell>
+
                                       <TableCell>
                                         <Button
-                                          disabled={disable}
+                                          disabled={handleEmail()}
                                           sx={{ width: "150px" }}
                                           type="submit"
                                           variant="contained"
@@ -1065,7 +1075,7 @@ export default function EnhancedTable() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 15]}
+          rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={data.length}
           rowsPerPage={rowsPerPage}
@@ -1096,11 +1106,18 @@ export default function EnhancedTable() {
       {snackbar && (
         <Snackbar
           open={snackbar}
-          autoHideDuration={600}
+          autoHideDuration={6000}
           message="Note archived"
         >
           <Alert severity="success" sx={{ width: "100%" }}>
             successfully updated!
+          </Alert>
+        </Snackbar>
+      )}
+      {emailVal && (
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
+            Invalid Email!
           </Alert>
         </Snackbar>
       )}

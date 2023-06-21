@@ -6,7 +6,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
-
 const ZOHO = window.ZOHO;
 export default function Insert({ module }) {
   const [name, setName] = React.useState();
@@ -26,7 +25,16 @@ export default function Insert({ module }) {
   // const [ownerName, setOwnerName] = React.useState();
 
   const [open, setOpen] = React.useState(false);
-
+  const handleButton = () => {
+    if (name === "") {
+      return true;
+    } else if (deal_name === "") {
+      return true;
+    } else {
+      return false;
+    }
+  };
+  console.log(handleButton());
   const handleShut = () => {
     handleInsert(
       id,
@@ -65,7 +73,6 @@ export default function Insert({ module }) {
     stage,
     modified_time,
     amount,
-
     start_date,
     color,
     end_date
@@ -106,6 +113,7 @@ export default function Insert({ module }) {
       console.log({ data });
     });
   };
+
   return (
     <div>
       <Button
@@ -132,11 +140,12 @@ export default function Insert({ module }) {
               margin="dense"
               id="name"
               label="Name"
+              required
               type="text"
               fullWidth
               variant="standard"
               onChange={(e) => setName(e.target.value)}
-            />
+            ></TextField>
             <TextField
               autoFocus
               margin="dense"
@@ -175,6 +184,7 @@ export default function Insert({ module }) {
               margin="dense"
               id="deal_name"
               label="Deal_Name"
+              required
               type="text"
               fullWidth
               variant="standard"
@@ -227,6 +237,7 @@ export default function Insert({ module }) {
               margin="dense"
               id="name"
               label="Name"
+              required
               type="text"
               fullWidth
               variant="standard"
@@ -277,7 +288,12 @@ export default function Insert({ module }) {
         )}
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit" variant="contained" onClick={handleShut}>
+          <Button
+            disabled={name ? false : deal_name ? false : true}
+            type="submit"
+            variant="contained"
+            onClick={handleShut}
+          >
             Submit
           </Button>
         </DialogActions>
