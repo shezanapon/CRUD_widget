@@ -452,6 +452,7 @@ export default function EnhancedTable() {
   };
   const handleUpdate2 = (id, name, start_date, color, end_date) => {
     setSnackbar(true);
+
     let show = {
       Entity: "TESTS",
       APIData: {
@@ -474,14 +475,14 @@ export default function EnhancedTable() {
   // const [team, setTeam] = React.useState("");
   const [bday, setBDay] = React.useState("");
   const [email, setEmail] = React.useState(null);
-  const [stage, setStage] = React.useState();
-  const [deal_name, setDeal_Name] = React.useState();
-  const [modified_time, setModified_Time] = React.useState();
-  const [amount, setAmount] = React.useState();
-  const [start_date, setStart_Date] = React.useState();
-  const [end_date, setEnd_Date] = React.useState();
-  const [title, setTitle] = React.useState();
-  const [color, setColor] = React.useState();
+  const [stage, setStage] = React.useState("");
+  const [deal_name, setDeal_Name] = React.useState("");
+  const [modified_time, setModified_Time] = React.useState("");
+  const [amount, setAmount] = React.useState("");
+  const [start_date, setStart_Date] = React.useState("");
+  const [end_date, setEnd_Date] = React.useState("");
+  const [title, setTitle] = React.useState("");
+  const [color, setColor] = React.useState("");
 
   // const [deal_Name, setDeal_Name] = React.useState("");
 
@@ -657,10 +658,9 @@ export default function EnhancedTable() {
                                       <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="Name"
                                           type="text"
                                           name="name"
-                                          value={name}
+                                          value={data.Name || ""}
                                           onChange={(e) =>
                                             setName(e.target.value)
                                           }
@@ -672,7 +672,7 @@ export default function EnhancedTable() {
                                           placeholder="Position"
                                           type="text"
                                           name="position"
-                                          value={position}
+                                          value={data.Position || ""}
                                           onChange={(e) =>
                                             setPosition(e.target.value)
                                           }
@@ -696,7 +696,7 @@ export default function EnhancedTable() {
                                           placeholder="BDay"
                                           type="date"
                                           name="bday"
-                                          value={bday}
+                                          value={data.BDay || ""}
                                           onChange={(e) =>
                                             setBDay(e.target.value)
                                           }
@@ -709,7 +709,7 @@ export default function EnhancedTable() {
                                           placeholder="Email"
                                           type="text"
                                           name="email"
-                                          value={email}
+                                          value={data.Email || ""}
                                           onChange={(e) =>
                                             setEmail(e.target.value)
                                           }
@@ -823,7 +823,7 @@ export default function EnhancedTable() {
                                           placeholder="Deal_Name"
                                           type="text"
                                           name="Deal_Name"
-                                          value={deal_name}
+                                          value={data.Deal_Name || ""}
                                           onChange={(e) =>
                                             setDeal_Name(e.target.value)
                                           }
@@ -847,7 +847,7 @@ export default function EnhancedTable() {
                                           placeholder="Stage"
                                           type="text"
                                           name="Stage"
-                                          value={stage}
+                                          value={data.Stage}
                                           onChange={(e) =>
                                             setStage(e.target.value)
                                           }
@@ -859,7 +859,7 @@ export default function EnhancedTable() {
                                           placeholder="Modified_Time"
                                           type="date"
                                           name="Modified_Time"
-                                          value={modified_time}
+                                          value={data.Modified_Time || ""}
                                           onChange={(e) =>
                                             setModified_Time(e.target.value)
                                           }
@@ -872,7 +872,7 @@ export default function EnhancedTable() {
                                           placeholder="Amount"
                                           type="text"
                                           name="Amount"
-                                          value={amount}
+                                          value={data.Amount || ""}
                                           onChange={(e) =>
                                             setAmount(e.target.value)
                                           }
@@ -977,12 +977,12 @@ export default function EnhancedTable() {
                                     <TableCell>
                                       <TextField
                                         size="small"
-                                        placeholder="Title"
+                                        placeholder="Name"
                                         type="text"
-                                        name="title"
-                                        value={title}
+                                        name="name"
+                                        value={data.Name || ""}
                                         onChange={(e) =>
-                                          setTitle(e.target.value)
+                                          setName(e.target.value)
                                         }
                                       />
                                     </TableCell>
@@ -1002,7 +1002,7 @@ export default function EnhancedTable() {
                                         placeholder="Exchange_Rate"
                                         type="date"
                                         name="exchange_rate"
-                                        value={start_date}
+                                        value={data.Start_Date || ""}
                                         onChange={(e) =>
                                           setStart_Date(e.target.value)
                                         }
@@ -1014,7 +1014,7 @@ export default function EnhancedTable() {
                                         placeholder="Color"
                                         type="text"
                                         name="color"
-                                        value={color}
+                                        value={data.Color || ""}
                                         onChange={(e) =>
                                           setColor(e.target.value)
                                         }
@@ -1026,7 +1026,7 @@ export default function EnhancedTable() {
                                         placeholder="End_Date"
                                         type="date"
                                         name="end_date"
-                                        value={end_date}
+                                        value={data.End_Date || ""}
                                         onChange={(e) =>
                                           setEnd_Date(e.target.value)
                                         }
