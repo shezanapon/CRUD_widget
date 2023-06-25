@@ -8,21 +8,21 @@ import DialogTitle from "@mui/material/DialogTitle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 const ZOHO = window.ZOHO;
 export default function Insert({ module }) {
-  const [name, setName] = React.useState();
-  const [position, setPosition] = React.useState();
-  const [id, setID] = React.useState();
+  const [name, setName] = React.useState(null);
+  const [position, setPosition] = React.useState(null);
+  const [id, setID] = React.useState(null);
   // const [aid, setAID] = React.useState();
-  const [bday, setBDay] = React.useState();
-  const [email, setEmail] = React.useState();
-  const [stage, setStage] = React.useState();
-  const [deal_name, setDeal_Name] = React.useState();
-  const [modified_time, setModified_Time] = React.useState();
-  const [color, setColor] = React.useState();
-  const [amount, setAmount] = React.useState();
+  const [bday, setBDay] = React.useState(null);
+  const [email, setEmail] = React.useState(null);
+  const [stage, setStage] = React.useState(null);
+  const [deal_name, setDeal_Name] = React.useState(null);
+  const [modified_time, setModified_Time] = React.useState(null);
+  const [color, setColor] = React.useState(null);
+  const [amount, setAmount] = React.useState(null);
 
-  const [start_date, setStart_Date] = React.useState();
-  const [end_date, setEnd_Date] = React.useState();
-  // const [ownerName, setOwnerName] = React.useState();
+  const [start_date, setStart_Date] = React.useState(null);
+  const [end_date, setEnd_Date] = React.useState(null);
+  const [team, setTeam] = React.useState(null);
 
   const [open, setOpen] = React.useState(false);
   const handleButton = () => {
@@ -40,6 +40,7 @@ export default function Insert({ module }) {
       id,
       name,
       position,
+      team,
       bday,
       email,
       deal_name,
@@ -67,6 +68,7 @@ export default function Insert({ module }) {
     id,
     name,
     position,
+    team,
     bday,
     email,
     deal_name,
@@ -84,6 +86,7 @@ export default function Insert({ module }) {
         Name: name,
         Position: position,
         id: id,
+        Team: team,
         BDay: bday,
         Email: email,
       };
@@ -155,6 +158,16 @@ export default function Insert({ module }) {
               fullWidth
               variant="standard"
               onChange={(e) => setPosition(e.target.value)}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="team"
+              label="Team"
+              type="number"
+              fullWidth
+              variant="standard"
+              onChange={(e) => setTeam(e.target.value)}
             />
 
             <TextField

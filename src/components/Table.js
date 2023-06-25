@@ -50,6 +50,7 @@ export default function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [snackbar, setSnackbar] = React.useState(false);
   const [emailVal, setEmailVal] = React.useState(false);
+  const [rata, setRata] = React.useState(null);
 
   const data = [];
 
@@ -87,10 +88,10 @@ export default function EnhancedTable() {
         label: "Position",
       },
       {
-        id: "id",
+        id: "team",
         numeric: true,
         disablePadding: false,
-        label: "ID",
+        label: "Team",
       },
       {
         id: "bday",
@@ -313,6 +314,7 @@ export default function EnhancedTable() {
       name: item.Name,
       position: item.Position,
       id: item.id,
+      team: item.Team,
       email: item.Email,
       bday: item.BDay,
       deal_name: item.deal_name,
@@ -410,7 +412,8 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
-  const handleUpdate = (id, name, position, bday, email) => {
+  const handleUpdate = async ({ id, name, position, team, bday, email }) => {
+    console.log(id, name, position, team, bday, email);
     setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
@@ -420,17 +423,33 @@ export default function EnhancedTable() {
         id: id,
         Name: name,
         Position: position,
+        Team: team,
         BDay: bday,
         Email: email,
       },
       Trigger: ["workflow"],
     };
     // console.log("mahadi", config);
-    ZOHO.CRM.API.updateRecord(config).then(function (data) {
+    await ZOHO.CRM.API.updateRecord(config).then(function (data) {
       console.log(data);
+      setRata((prevData) => {
+        const updatedData = prevData.map((item) => {
+          if (item.id === id) {
+            return {
+              ...item,
+              Name: name,
+              Position: position,
+              BDay: bday,
+              Email: email,
+            };
+          }
+          return item;
+        });
+        return updatedData;
+      });
     });
   };
-  const handleUpdate1 = (id, deal_name, stage, modified_time, amount) => {
+  const handleUpdate1 = ({ id, deal_name, stage, modified_time, amount }) => {
     setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
@@ -445,12 +464,12 @@ export default function EnhancedTable() {
       },
       Trigger: ["workflow"],
     };
-    console.log("mahadi", entry);
+    // console.log("mahadi", entry);
     ZOHO.CRM.API.updateRecord(entry).then(function (data) {
       console.log(data);
     });
   };
-  const handleUpdate2 = (id, name, start_date, color, end_date) => {
+  const handleUpdate2 = ({ id, name, start_date, color, end_date }) => {
     setSnackbar(true);
 
     let show = {
@@ -464,25 +483,25 @@ export default function EnhancedTable() {
       },
       Trigger: ["workflow"],
     };
-    console.log("mahadi", show);
+    // console.log("mahadi", show);
     ZOHO.CRM.API.updateRecord(show).then(function (data) {
       console.log(data);
     });
   };
   const [load, setLoad] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [position, setPosition] = React.useState("");
-  // const [team, setTeam] = React.useState("");
-  const [bday, setBDay] = React.useState("");
+  const [name, setName] = React.useState(null);
+  const [position, setPosition] = React.useState(null);
+  const [team, setTeam] = React.useState(null);
+  const [bday, setBDay] = React.useState(null);
   const [email, setEmail] = React.useState(null);
-  const [stage, setStage] = React.useState("");
-  const [deal_name, setDeal_Name] = React.useState("");
-  const [modified_time, setModified_Time] = React.useState("");
-  const [amount, setAmount] = React.useState("");
-  const [start_date, setStart_Date] = React.useState("");
-  const [end_date, setEnd_Date] = React.useState("");
-  const [title, setTitle] = React.useState("");
-  const [color, setColor] = React.useState("");
+  const [stage, setStage] = React.useState(null);
+  const [deal_name, setDeal_Name] = React.useState(null);
+  const [modified_time, setModified_Time] = React.useState(null);
+  const [amount, setAmount] = React.useState(null);
+  const [start_date, setStart_Date] = React.useState(null);
+  const [end_date, setEnd_Date] = React.useState(null);
+  const [title, setTitle] = React.useState(null);
+  const [color, setColor] = React.useState(null);
 
   // const [deal_Name, setDeal_Name] = React.useState("");
 
@@ -578,7 +597,9 @@ export default function EnhancedTable() {
               {allData
                 .filter((user) => {
                   return Object.values(user).some((value) => {
+                    // console.log("User", user);
                     if (typeof value === "string") {
+                      // console.log("value", value);
                       return value.toLowerCase().includes(search.toLowerCase());
                     }
                     return false;
@@ -625,7 +646,7 @@ export default function EnhancedTable() {
                               {data.Name}
                             </TableCell>
                             <TableCell align="right">{data.Position}</TableCell>
-                            <TableCell align="right">{data.id}</TableCell>
+                            <TableCell align="right">{data.Team}</TableCell>
                             <TableCell align="right">{data.BDay}</TableCell>
                             <TableCell align="right">{data.Email}</TableCell>
                             <TableCell align="right">
@@ -660,7 +681,7 @@ export default function EnhancedTable() {
                                           size="small"
                                           type="text"
                                           name="name"
-                                          value={data.Name || ""}
+                                          defaultValue={data.Name || ""}
                                           onChange={(e) =>
                                             setName(e.target.value)
                                           }
@@ -672,31 +693,31 @@ export default function EnhancedTable() {
                                           placeholder="Position"
                                           type="text"
                                           name="position"
-                                          value={data.Position || ""}
+                                          defaultValue={data.Position || ""}
                                           onChange={(e) =>
                                             setPosition(e.target.value)
                                           }
                                         />
                                       </TableCell>
-                                      {/* <TableCell>
+                                      <TableCell>
                                         <TextField
                                           size="small"
-                                          placeholder="ID"
-                                          type="text"
-                                          name="id"
-                                          value={id}
+                                          placeholder="Team"
+                                          type="number"
+                                          name="team"
+                                          defaultValue={data.Team || ""}
                                           onChange={(e) =>
-                                            setID(e.target.value)
+                                            setTeam(e.target.value)
                                           }
                                         />
-                                      </TableCell> */}
+                                      </TableCell>
                                       <TableCell>
                                         <TextField
                                           size="small"
                                           placeholder="BDay"
                                           type="date"
                                           name="bday"
-                                          value={data.BDay || ""}
+                                          defaultValue={data.BDay || ""}
                                           onChange={(e) =>
                                             setBDay(e.target.value)
                                           }
@@ -709,7 +730,7 @@ export default function EnhancedTable() {
                                           placeholder="Email"
                                           type="text"
                                           name="email"
-                                          value={data.Email || ""}
+                                          defaultValue={data.Email || ""}
                                           onChange={(e) =>
                                             setEmail(e.target.value)
                                           }
@@ -723,13 +744,15 @@ export default function EnhancedTable() {
                                           type="submit"
                                           variant="contained"
                                           onClick={function refreshPage() {
-                                            handleUpdate(
-                                              data.id,
-                                              name,
-                                              position,
-                                              bday,
-                                              email
-                                            );
+                                            handleUpdate({
+                                              id: data.id,
+                                              name: name || data.Name,
+                                              position:
+                                                position || data.Position,
+                                              team: team || data.Team,
+                                              bday: bday || data.BDay,
+                                              email: email || data.Email,
+                                            });
                                           }}
                                         >
                                           update
@@ -847,7 +870,7 @@ export default function EnhancedTable() {
                                           placeholder="Stage"
                                           type="text"
                                           name="Stage"
-                                          value={data.Stage}
+                                          defaultValue={data.Stage || ""}
                                           onChange={(e) =>
                                             setStage(e.target.value)
                                           }
@@ -859,7 +882,9 @@ export default function EnhancedTable() {
                                           placeholder="Modified_Time"
                                           type="date"
                                           name="Modified_Time"
-                                          value={data.Modified_Time || ""}
+                                          defaultValue={
+                                            data.Modified_Time || ""
+                                          }
                                           onChange={(e) =>
                                             setModified_Time(e.target.value)
                                           }
@@ -872,7 +897,7 @@ export default function EnhancedTable() {
                                           placeholder="Amount"
                                           type="text"
                                           name="Amount"
-                                          value={data.Amount || ""}
+                                          defaultValue={data.Amount || ""}
                                           onChange={(e) =>
                                             setAmount(e.target.value)
                                           }
@@ -885,13 +910,16 @@ export default function EnhancedTable() {
                                           type="submit"
                                           variant="contained"
                                           onClick={() =>
-                                            handleUpdate1(
-                                              data.id,
-                                              deal_name,
-                                              stage,
-                                              modified_time,
-                                              amount
-                                            )
+                                            handleUpdate1({
+                                              id: data.id,
+                                              deal_name:
+                                                deal_name || data.Deal_Name,
+                                              stage: stage || data.Stage,
+                                              modified_time:
+                                                modified_time ||
+                                                data.Modified_Time,
+                                              amount: amount || data.Amount,
+                                            })
                                           }
                                         >
                                           update
@@ -980,7 +1008,7 @@ export default function EnhancedTable() {
                                         placeholder="Name"
                                         type="text"
                                         name="name"
-                                        value={data.Name || ""}
+                                        defaultValue={data.Name || ""}
                                         onChange={(e) =>
                                           setName(e.target.value)
                                         }
@@ -999,10 +1027,10 @@ export default function EnhancedTable() {
                                     <TableCell>
                                       <TextField
                                         size="small"
-                                        placeholder="Exchange_Rate"
+                                        placeholder="Start_Date"
                                         type="date"
-                                        name="exchange_rate"
-                                        value={data.Start_Date || ""}
+                                        name="start_date"
+                                        defaultValue={data.Start_Date || ""}
                                         onChange={(e) =>
                                           setStart_Date(e.target.value)
                                         }
@@ -1014,7 +1042,7 @@ export default function EnhancedTable() {
                                         placeholder="Color"
                                         type="text"
                                         name="color"
-                                        value={data.Color || ""}
+                                        defaultValue={data.Color || ""}
                                         onChange={(e) =>
                                           setColor(e.target.value)
                                         }
@@ -1026,7 +1054,7 @@ export default function EnhancedTable() {
                                         placeholder="End_Date"
                                         type="date"
                                         name="end_date"
-                                        value={data.End_Date || ""}
+                                        defaultValue={data.End_Date || ""}
                                         onChange={(e) =>
                                           setEnd_Date(e.target.value)
                                         }
@@ -1040,13 +1068,14 @@ export default function EnhancedTable() {
                                         onClick={function refreshPage() {
                                           window.location.reload(false);
                                           window.location.reload(false);
-                                          handleUpdate2(
-                                            data.id,
-                                            title,
-                                            start_date,
-                                            color,
-                                            end_date
-                                          );
+                                          handleUpdate2({
+                                            id: data.id,
+                                            title: title || data.Title,
+                                            start_date:
+                                              start_date || data.Start_Date,
+                                            color: color || data.Color,
+                                            end_date: end_date || data.End_Date,
+                                          });
                                         }}
                                       >
                                         update
