@@ -19,6 +19,7 @@ export default function Insert({ module }) {
   const [modified_time, setModified_Time] = React.useState(null);
   const [color, setColor] = React.useState(null);
   const [amount, setAmount] = React.useState(null);
+  const [title, setTitle] = React.useState(null);
 
   const [start_date, setStart_Date] = React.useState(null);
   const [end_date, setEnd_Date] = React.useState(null);
@@ -47,6 +48,7 @@ export default function Insert({ module }) {
       stage,
       modified_time,
       amount,
+      title,
       start_date,
       color,
       end_date
@@ -75,6 +77,7 @@ export default function Insert({ module }) {
     stage,
     modified_time,
     amount,
+    title,
     start_date,
     color,
     end_date
@@ -102,6 +105,7 @@ export default function Insert({ module }) {
       recordData = {
         Name: name,
         Start_Date: start_date,
+        Title: title,
         id: id,
         End_Date: end_date,
         Color: color,
@@ -256,16 +260,16 @@ export default function Insert({ module }) {
               variant="standard"
               onChange={(e) => setName(e.target.value)}
             />
-            {/* <TextField
+            <TextField
               autoFocus
               margin="dense"
-              id="id"
-              label="ID"
-              type="number"
+              id="title"
+              label="Title"
+              type="text"
               fullWidth
               variant="standard"
-              onChange={(e) => setID(e.target.value)}
-            /> */}
+              onChange={(e) => setTitle(e.target.value)}
+            />
             <TextField
               autoFocus
               margin="dense"

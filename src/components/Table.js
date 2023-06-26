@@ -115,10 +115,10 @@ export default function EnhancedTable() {
         label: "Deal_Name",
       },
       {
-        id: "id",
+        id: "street",
         numeric: true,
         disablePadding: false,
-        label: "id",
+        label: "Street",
       },
       {
         id: "stage",
@@ -149,10 +149,10 @@ export default function EnhancedTable() {
         label: "Name",
       },
       {
-        id: "id",
+        id: "title",
         numeric: true,
         disablePadding: false,
-        label: "id",
+        label: "Title",
       },
       {
         id: "start_date",
@@ -318,6 +318,7 @@ export default function EnhancedTable() {
       email: item.Email,
       bday: item.BDay,
       deal_name: item.deal_name,
+      street: item.Street,
       stage: item.stage,
       modified_time: item.modified_time,
       amount: item.amount,
@@ -449,7 +450,14 @@ export default function EnhancedTable() {
       });
     });
   };
-  const handleUpdate1 = ({ id, deal_name, stage, modified_time, amount }) => {
+  const handleUpdate1 = ({
+    id,
+    deal_name,
+    street,
+    stage,
+    modified_time,
+    amount,
+  }) => {
     setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
@@ -458,6 +466,7 @@ export default function EnhancedTable() {
       APIData: {
         id: id,
         Deal_Name: deal_name,
+        Street: street,
         Stage: stage,
         Modified_Time: modified_time,
         Amount: amount,
@@ -469,7 +478,7 @@ export default function EnhancedTable() {
       console.log(data);
     });
   };
-  const handleUpdate2 = ({ id, name, start_date, color, end_date }) => {
+  const handleUpdate2 = ({ id, name, title, start_date, color, end_date }) => {
     setSnackbar(true);
 
     let show = {
@@ -477,6 +486,7 @@ export default function EnhancedTable() {
       APIData: {
         id: id,
         Name: name,
+        Title: title,
         Start_Date: start_date,
         End_Date: end_date,
         Color: color,
@@ -502,6 +512,7 @@ export default function EnhancedTable() {
   const [end_date, setEnd_Date] = React.useState(null);
   const [title, setTitle] = React.useState(null);
   const [color, setColor] = React.useState(null);
+  const [street, setStreet] = React.useState(null);
 
   // const [deal_Name, setDeal_Name] = React.useState("");
 
@@ -807,7 +818,7 @@ export default function EnhancedTable() {
                             >
                               {data.Deal_Name}
                             </TableCell>
-                            <TableCell align="right">{data.id}</TableCell>
+                            <TableCell align="right">{data.Street}</TableCell>
                             <TableCell align="right">{data.Stage}</TableCell>
                             <TableCell align="right">
                               {dayjs(data.Modified_Time).format("DD/MM/YYYY")}
@@ -846,23 +857,23 @@ export default function EnhancedTable() {
                                           placeholder="Deal_Name"
                                           type="text"
                                           name="Deal_Name"
-                                          value={data.Deal_Name || ""}
+                                          defaultValue={data.Deal_Name || ""}
                                           onChange={(e) =>
                                             setDeal_Name(e.target.value)
                                           }
                                         />
                                       </TableCell>
                                       <TableCell>
-                                        {/* <TextField
+                                        <TextField
                                           size="small"
-                                          placeholder="ID"
+                                          placeholder="Street"
                                           type="text"
-                                          name="id"
-                                          value={id}
+                                          name="street"
+                                          defaultValue={data.Street || ""}
                                           onChange={(e) =>
-                                            setID(e.target.value)
+                                            setStreet(e.target.value)
                                           }
-                                        /> */}
+                                        />
                                       </TableCell>
                                       <TableCell>
                                         <TextField
@@ -914,6 +925,7 @@ export default function EnhancedTable() {
                                               id: data.id,
                                               deal_name:
                                                 deal_name || data.Deal_Name,
+                                              street: street || data.Street,
                                               stage: stage || data.Stage,
                                               modified_time:
                                                 modified_time ||
@@ -971,7 +983,7 @@ export default function EnhancedTable() {
                           >
                             {data?.Name}
                           </TableCell>
-                          <TableCell align="right">{data.id}</TableCell>
+                          <TableCell align="right">{data.Title}</TableCell>
                           <TableCell align="right">{data.Start_Date}</TableCell>
                           <TableCell align="right">{data.Color}</TableCell>
                           <TableCell align="right">{data.End_Date}</TableCell>
@@ -1014,16 +1026,18 @@ export default function EnhancedTable() {
                                         }
                                       />
                                     </TableCell>
-                                    {/* <TableCell>
+                                    <TableCell>
                                       <TextField
                                         size="small"
-                                        placeholder="ID"
-                                        type="number"
-                                        name="id"
-                                        value={id}
-                                        onChange={(e) => setID(e.target.value)}
+                                        placeholder="Title"
+                                        type="text"
+                                        name="title"
+                                        defaultValue={data.Title || ""}
+                                        onChange={(e) =>
+                                          setTitle(e.target.value)
+                                        }
                                       />
-                                    </TableCell> */}
+                                    </TableCell>
                                     <TableCell>
                                       <TextField
                                         size="small"
@@ -1070,6 +1084,7 @@ export default function EnhancedTable() {
                                           window.location.reload(false);
                                           handleUpdate2({
                                             id: data.id,
+                                            name: name || data.Name,
                                             title: title || data.Title,
                                             start_date:
                                               start_date || data.Start_Date,
