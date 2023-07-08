@@ -6,8 +6,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import { Alert, Snackbar } from "@mui/material";
+
 const ZOHO = window.ZOHO;
-export default function Insert({ module }) {
+export default function Insert({ module, datas }) {
   const [name, setName] = React.useState(null);
   const [position, setPosition] = React.useState(null);
   const [id, setID] = React.useState(null);
@@ -20,10 +22,11 @@ export default function Insert({ module }) {
   const [color, setColor] = React.useState(null);
   const [amount, setAmount] = React.useState(null);
   const [title, setTitle] = React.useState(null);
-
+  const [snackbar, setSnackbar] = React.useState(false);
   const [start_date, setStart_Date] = React.useState(null);
   const [end_date, setEnd_Date] = React.useState(null);
   const [team, setTeam] = React.useState(null);
+  const [street, setStreet] = React.useState(null);
 
   const [open, setOpen] = React.useState(false);
   const handleButton = () => {
@@ -35,7 +38,7 @@ export default function Insert({ module }) {
       return false;
     }
   };
-  console.log(handleButton());
+  // console.log(handleButton());
   const handleShut = () => {
     handleInsert(
       id,
@@ -46,6 +49,7 @@ export default function Insert({ module }) {
       email,
       deal_name,
       stage,
+      street,
       modified_time,
       amount,
       title,
@@ -54,9 +58,9 @@ export default function Insert({ module }) {
       end_date
     );
     setOpen(false);
-    window.location.reload(false);
-    window.location.reload(false);
-    window.location.reload(false);
+    // window.location.reload(false);
+    // window.location.reload(false);
+    // window.location.reload(false);
   };
   const handleClickOpen = () => {
     setOpen(true);
@@ -75,6 +79,7 @@ export default function Insert({ module }) {
     email,
     deal_name,
     stage,
+    street,
     modified_time,
     amount,
     title,
@@ -82,7 +87,7 @@ export default function Insert({ module }) {
     color,
     end_date
   ) => {
-    let recordData = {};
+    let recordData = [];
 
     if (module === "CRUD") {
       recordData = {
@@ -97,6 +102,7 @@ export default function Insert({ module }) {
       recordData = {
         Deal_Name: deal_name,
         Stage: stage,
+        Street: street,
         id: id,
         Modified_Time: modified_time,
         Amount: amount,
@@ -111,14 +117,38 @@ export default function Insert({ module }) {
         Color: color,
       };
     }
+    // console.log(recordData);
 
     ZOHO.CRM.API.insertRecord({
       Entity: module,
       APIData: recordData,
       Trigger: ["workflow"],
-    }).then(function (data) {
-      console.log({ data });
-    });
+    })
+      .then(function (data) {
+        id = data?.data?.details.id;
+        datas.push({
+          Name: name,
+          Position: position,
+          id: id,
+          Team: team,
+          BDay: bday,
+          Email: email,
+        });
+
+        // setAllData((pre) => {
+        //   console.log(pre);
+        //   return [...pre, data];
+        // });
+        // console.log({ data });
+        if (data.data[0].code === "SUCCESS") {
+          console.log(data);
+
+          setSnackbar(true);
+        }
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
   };
 
   return (
@@ -217,16 +247,16 @@ export default function Insert({ module }) {
               variant="standard"
               onChange={(e) => setStage(e.target.value)}
             />
-            {/* <TextField
+            <TextField
               autoFocus
               margin="dense"
-              id="id"
-              label="ID"
+              id="street"
+              label="Street"
               type="text"
               fullWidth
               variant="standard"
-              onChange={(e) => setID(e.target.value)}
-            /> */}
+              onChange={(e) => setStreet(e.target.value)}
+            />
             <TextField
               autoFocus
               margin="dense"
@@ -315,6 +345,18 @@ export default function Insert({ module }) {
           </Button>
         </DialogActions>
       </Dialog>
+      {snackbar && (
+        <Snackbar
+          open={snackbar}
+          autoHideDuration={5000}
+          message="Note archived"
+          onClose={() => setSnackbar(false)}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            successfully Inserted!
+          </Alert>
+        </Snackbar>
+      )}
     </div>
   );
 }

@@ -49,12 +49,11 @@ export default function EnhancedTable() {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [snackbar, setSnackbar] = React.useState(false);
-  const [emailVal, setEmailVal] = React.useState(false);
-  const [rata, setRata] = React.useState(null);
+  const [allData, setAllData] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
 
   const data = [];
 
-  const [open, setOpen] = React.useState(false);
   const handleSelect = (name) => {
     setOpen((currentId) => {
       // if it's already opened then unselect it
@@ -70,8 +69,7 @@ export default function EnhancedTable() {
   };
   const [module, setModule] = React.useState("CRUD");
   const [zohoLoaded, setZohoLoaded] = React.useState(false);
-  const [allData, setAllData] = React.useState([]);
-  console.log(allData);
+  // console.log(allData);
   let headCells = [];
   if (module === "CRUD") {
     headCells = [
@@ -244,7 +242,7 @@ export default function EnhancedTable() {
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
     // console.log("shezan", disable);
-
+    // console.log(setAllData);
     return (
       <Toolbar
         sx={{
@@ -275,7 +273,7 @@ export default function EnhancedTable() {
             id="tableTitle"
             component="div"
           >
-            <Insert module={module} data={allData} />
+            <Insert module={module} datas={datas} />
           </Typography>
         )}
 
@@ -414,7 +412,7 @@ export default function EnhancedTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   const handleUpdate = async ({ id, name, position, team, bday, email }) => {
-    console.log(id, name, position, team, bday, email);
+    // console.log(id, name, position, team, bday, email);
     setSnackbar(true);
     window.location.reload(false);
     window.location.reload(false);
@@ -432,22 +430,10 @@ export default function EnhancedTable() {
     };
     // console.log("mahadi", config);
     await ZOHO.CRM.API.updateRecord(config).then(function (data) {
-      console.log(data);
-      setRata((prevData) => {
-        const updatedData = prevData.map((item) => {
-          if (item.id === id) {
-            return {
-              ...item,
-              Name: name,
-              Position: position,
-              BDay: bday,
-              Email: email,
-            };
-          }
-          return item;
-        });
-        return updatedData;
-      });
+      // console.log(data);
+      if (data.data[0].code === "SUCCESS") {
+        setSnackbar(true);
+      }
     });
   };
   const handleUpdate1 = ({
@@ -475,7 +461,7 @@ export default function EnhancedTable() {
     };
     // console.log("mahadi", entry);
     ZOHO.CRM.API.updateRecord(entry).then(function (data) {
-      console.log(data);
+      // console.log(data);
     });
   };
   const handleUpdate2 = ({ id, name, title, start_date, color, end_date }) => {
@@ -495,7 +481,7 @@ export default function EnhancedTable() {
     };
     // console.log("mahadi", show);
     ZOHO.CRM.API.updateRecord(show).then(function (data) {
-      console.log(data);
+      // console.log(data);
     });
   };
   const [load, setLoad] = React.useState(false);
@@ -548,7 +534,8 @@ export default function EnhancedTable() {
   };
 
   // const keys = allData.keys;
-
+  let datas = [];
+  datas = allData;
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
@@ -605,7 +592,7 @@ export default function EnhancedTable() {
             />
 
             <TableBody>
-              {allData
+              {datas
                 .filter((user) => {
                   return Object.values(user).some((value) => {
                     // console.log("User", user);
@@ -1150,18 +1137,12 @@ export default function EnhancedTable() {
       {snackbar && (
         <Snackbar
           open={snackbar}
-          autoHideDuration={6000}
+          autoHideDuration={5000}
           message="Note archived"
+          onClose={() => setSnackbar(false)}
         >
           <Alert severity="success" sx={{ width: "100%" }}>
             successfully updated!
-          </Alert>
-        </Snackbar>
-      )}
-      {emailVal && (
-        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
-            Invalid Email!
           </Alert>
         </Snackbar>
       )}
